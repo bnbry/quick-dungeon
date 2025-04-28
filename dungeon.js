@@ -8,8 +8,13 @@ Interface.API = {
       "Very much an early WIP. Thanks for sneaking a peak.",
       `${gameState.enemy.name} the ${gameState.enemy.kind} stands before you.`,
     ];
+    Interface.API.update(gameState, messages);
+  },
+
+  update: function (gameState, messages) {
     Interface.private.streamMessages(messages);
     Interface.private.renderActions(gameState);
+    Interface.private.initListeners();
   },
 
   onOptionSelect: function (target) {
@@ -18,15 +23,24 @@ Interface.API = {
     );
     const actionButton = Interface.targets.queryActionButton();
     actionButton.dataset.value = target.dataset.value;
-    actionButton.dataset.option = target.dataset.option;
     actionButton.textContent = target.dataset.value;
     actionButton.removeAttribute("disabled");
   },
 
   onActionPerform: function (target) {
-    Interface.private.streamMessage(
-      `you ${target.dataset.value}, but we haven't coded that yet`
-    );
+    const gameState = Core.API.handleAction();
+    const messages = [
+      `You ${target.dataset.value}, but right now we assume everything is attack, almost nothing works yet.`,
+    ];
+    if (gameState.enemy.health > 0) {
+      messages.push("You delivered a mighty blow");
+    } else {
+      messages.push(
+        `${gameState.enemy.name} has been defeated.`,
+        "You won the dungeon because we're still coding it and this is as far as we've made it."
+      );
+    }
+    Interface.API.update(gameState, messages);
   },
 };
 
@@ -62,6 +76,10 @@ Interface.private = {
   },
 
   streamMessages: function (messages) {
+    if (messages.length == 0) {
+      return;
+    }
+
     Interface.private.streamMessage(messages[0], function () {
       if (messages.length > 1) {
         Interface.private.streamMessages(messages.slice(1));
@@ -72,22 +90,34 @@ Interface.private = {
   renderActions: function () {
     const actionsMenu = Interface.targets.queryActionsMenu();
     actionsMenu.innerHTML = Interface.markup.battleActions;
-    Interface.private.initListeners();
   },
 
   initListeners: function () {
     const battleActions = Interface.targets.queryBattleActions();
 
     battleActions.forEach(function (battleAction) {
-      battleAction.addEventListener("click", function (event) {
-        Interface.API.onOptionSelect(event.currentTarget);
-      });
+      battleAction.removeEventListener(
+        "click",
+        Interface.private.onActionClick
+      );
+      battleAction.addEventListener("click", Interface.private.onActionClick);
     });
 
     const actionButton = Interface.targets.queryActionButton();
-    actionButton.addEventListener("click", function (event) {
-      Interface.API.onActionPerform(event.currentTarget);
-    });
+    actionButton.removeEventListener(
+      "click",
+      Interface.private.onActionPerform
+    );
+    actionButton.addEventListener("click", Interface.private.onActionPerform);
+  },
+
+  // TODO: clarify naming strategy here
+  onActionPerform: function (event) {
+    Interface.API.onActionPerform(event.currentTarget);
+  },
+
+  onActionClick: function (event) {
+    Interface.API.onOptionSelect(event.currentTarget);
   },
 };
 
@@ -122,8 +152,10 @@ Core.API = {
   init: function () {
     return Core.private.init();
   },
-  update: function (action) {
-    return action;
+  handleAction: function () {
+    Core.state.enemy.health -= 1;
+
+    return Core.state;
   },
 };
 
