@@ -1,0 +1,147 @@
+.theme-purple {
+  --black-color: #16161A;
+  --faint-color: #1F1F26;
+  --dark-color:  #332E4D;
+  --light-color: #554D80;
+  --white-color: #B3ADCC;
+}
+
+.theme-green {
+  --black-color: #191A16;
+  --faint-color: #1F261F;
+  --dark-color:  #454D2E;
+  --light-color: #73804D;
+  --white-color: #C4CCAD;
+}
+
+.theme-grey {
+  --black-color: #1A1A1A;
+  --faint-color: #262626;
+  --dark-color:  #4D4D4D;
+  --light-color: #808080;
+  --white-color: #CCCCCC;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--black-color);
+  color: var(--white-color);
+  font-size: 14px;
+  font-family: "Fira Code", "Inconsolata", monospace;
+  margin: 10px;
+}
+
+a,
+a:visited {
+  color: var(--light-color);
+}
+
+a:hover,
+a:active,
+a:focus {
+  color: var(--white-color);
+}
+
+.game-wrapper {
+  margin: 10px auto;
+  max-width: 500px;
+  min-width: 300px;
+  width: 100%;
+}
+
+header h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.tiny-blurb {
+  font-size: 12px;
+}
+
+section {
+  margin: 10px 0;
+}
+
+.terminal {
+  height: 200px;
+  border: 1px solid var(--dark-color);
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+.output-stream {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.output-stream li {
+  color: var(--light-color);
+  padding: 15px 10px;
+  border-bottom: 1px solid var(--faint-color);
+  margin: 0 10px;
+}
+
+.output-stream li:first-child {
+  color: var(--white-color);
+}
+
+.button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.button {
+  background-color: var(--black-color);
+  border: 1px solid var(--dark-color);
+  color: var(--light-color);
+  display: block;
+  padding: 10px;
+  text-align: center;
+  text-transform: capitalize;
+  font-size: 13px;
+}
+
+.button:hover,
+.button:focus,
+.button.selected {
+  background-color: var(--dark-color);
+  border: 1px solid var(--light-color);
+  color: var(--white-color);
+  cursor: pointer;
+}
+
+.button[disabled],
+.button[disabled]:hover,
+.button[disabled]:focus,
+.button[disabled].selected {
+  background-color: var(--black-color);
+  border: 1px solid var(--black-color);
+  color: var(--dark-color);
+  cursor: not-allowed;
+}
+
+.button-row .button {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.button-row .button:last-child {
+  margin-right: 0;
+}
+
+label {
+  font-size: 14px;
+  color: var(--light-color);
+  margin-bottom: 5px;
+  display: block;
+}
+
+footer {
+  margin: 10px 0;
+}

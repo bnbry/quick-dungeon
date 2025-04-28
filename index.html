@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dungeon.css" />
+</head>
+<body class="theme-grey">
+  <main class="game-wrapper">
+    <header><h1>Dungeon</h1></header>
+
+    <section class="terminal">
+      <ul class="output-stream" data-target="output-stream"></ul>
+    </section>
+
+    <section>
+      <a class="button button-action" data-target="action" data-option="playerAction" data-value="" disabled>Select Action...</a>
+    </section>
+
+    <section data-target="actions-menu"></section>
+
+    <footer></footer>
+  </main>
+
+  <script type="application/javascript" src="dungeon.js"></script>
+  <script type="application/javascript">
+    Interface.API.init();
+  </script>
+</body>
+</html>
