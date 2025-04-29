@@ -12,6 +12,7 @@ Interface.API = {
   },
 
   update: function (gameState, messages) {
+    Interface.private.resetActionButton();
     Interface.private.streamMessages(messages);
     Interface.private.renderActions(gameState);
     Interface.private.initListeners();
@@ -28,6 +29,10 @@ Interface.API = {
   },
 
   onActionPerform: function (target) {
+    if (target.hasAttribute("disabled")) {
+      return;
+    }
+
     const gameState = Core.API.handleAction();
     const messages = [
       `You ${target.dataset.value}, but right now we assume everything is attack, almost nothing works yet.`,
@@ -45,6 +50,13 @@ Interface.API = {
 };
 
 Interface.private = {
+  resetActionButton: function () {
+    const actionButton = Interface.targets.queryActionButton();
+    actionButton.setAttribute("disabled", "");
+    actionButton.textContent = "Select Action...";
+    actionButton.dataset.value = "";
+  },
+
   createMessageElement: function () {
     const messageElement = document.createElement("li");
     Interface.targets.queryOutputStream().prepend(messageElement);
