@@ -5,7 +5,7 @@ Interface.API = {
   init: function () {
     const gameState = Core.API.init();
     const messages = [
-      "Very much an early WIP. Thanks for sneaking a peak.",
+      "Very much an early WIP. Thanks for sneaking a peek.",
       `${gameState.enemy.name} the ${gameState.enemy.kind} stands before you.`,
     ];
     Interface.API.update(gameState, messages);
