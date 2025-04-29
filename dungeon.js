@@ -1,28 +1,43 @@
-const Interface = {};
-const Core = {};
+// The UI layer handles all of the details of the web user interface and interacts with the Adapter
+const UI = {
+  API: {},
+  private: {},
+};
 
-Interface.API = {
+// The Adapter layer translates between the Core layer and UI layer
+const Adapter = {
+  API: {},
+  private: {},
+};
+
+// The Core layer handles all of the details of game logic and state
+const Core = {
+  API: {},
+  private: {},
+};
+
+UI.API = {
   init: function () {
     const gameState = Core.API.init();
     const messages = [
       "Very much an early WIP. Thanks for sneaking a peek.",
       `${gameState.enemy.name} the ${gameState.enemy.kind} stands before you.`,
     ];
-    Interface.API.update(gameState, messages);
+    UI.API.update(gameState, messages);
   },
 
   update: function (gameState, messages) {
-    Interface.private.resetActionButton();
-    Interface.private.streamMessages(messages);
-    Interface.private.renderActions(gameState);
-    Interface.private.initListeners();
+    UI.private.resetActionButton();
+    UI.private.streamMessages(messages);
+    UI.private.renderActions(gameState);
+    UI.private.initListeners();
   },
 
   onOptionSelect: function (target) {
-    Interface.private.streamMessage(
+    UI.private.streamMessage(
       `You have picked an action, ${target.dataset.value}`
     );
-    const actionButton = Interface.targets.queryActionButton();
+    const actionButton = UI.targets.queryActionButton();
     actionButton.dataset.value = target.dataset.value;
     actionButton.textContent = target.dataset.value;
     actionButton.removeAttribute("disabled");
@@ -33,25 +48,80 @@ Interface.API = {
       return;
     }
 
-    const gameState = Core.API.handleAction();
-    const messages = [
-      `You ${target.dataset.value}, but right now we assume everything is attack, almost nothing works yet.`,
-    ];
-    if (gameState.enemy.health > 0) {
-      messages.push("You delivered a mighty blow");
-    } else {
+    const gameState = Core.API.handleAction(target.dataset.value);
+    const playerAction = gameState.playerAction;
+    const enemyAction = gameState.enemyAction;
+    const messages = [];
+
+    if (gameState.playerAction == "attack") {
+    } else if (gameState.playerAction == "") {
+    }
+
+    // naive rock paper scissors
+    if (playerAction == "attack") {
+      messages.push("You swing your sword ferociously.");
+
+      if (enemyAction == "attack") {
+        messages.push(`${gameState.enemy.name} swings their bludgeon.`);
+        messages.push("Sword and bludgeon clang against each other.");
+      } else if (enemyAction == "defend") {
+        messages.push(`${gameState.enemy.name} raises their shield.`);
+        messages.push(
+          "Your sword bounces off the enemies shield, leaving you open to a quick swipe of the bludgeon"
+        );
+      } else if (enemyAction == "cast") {
+        messages.push(`${gameState.enemy.name} attempts to cast a spell`);
+        messages.push("Your attack disrupts the enemy, a clean hit");
+      }
+    } else if (playerAction == "defend") {
+      messages.push("You raise your shield and brace for impact.");
+
+      if (enemyAction == "attack") {
+        messages.push(`${gameState.enemy.name} swings their bludgeon.`);
+        messages.push(
+          "You deflect the bludgeon with your shield and strike back at the stunned foe."
+        );
+      } else if (enemyAction == "defend") {
+        messages.push(`${gameState.enemy.name} raises their shield.`);
+        messages.push(
+          "You stare each other down, neither of you gaining ground behind your shields."
+        );
+      } else if (enemyAction == "cast") {
+        messages.push(`${gameState.enemy.name} casts dark flame.`);
+        messages.push("Your shield offers no defense to the forbidden arts.");
+      }
+    } else if (playerAction == "cast") {
+      messages.push("You ready your catalyst to cast firebolt.");
+
+      if (enemyAction == "attack") {
+        messages.push(`${gameState.enemy.name} swings their bludgeon.`);
+        messages.push("It strikes you before your incantation is completed.");
+      } else if (enemyAction == "defend") {
+        messages.push(`${gameState.enemy.name} raises their shield.`);
+        messages.push("Shields offer no protection against your wizardy");
+      } else if (enemyAction == "cast") {
+        messages.push(`${gameState.enemy.name} casts a magic barrier.`);
+        messages.push("Your spell is unable to penetrate the barrier.");
+      }
+    }
+
+    if (gameState.player.health <= 0) {
+      messages.push(`${gameState.enemy.name} has defeated you.`, "You died.");
+    } else if (gameState.enemy.health <= 0) {
       messages.push(
         `${gameState.enemy.name} has been defeated.`,
         "You won the dungeon because we're still coding it and this is as far as we've made it."
       );
+    } else {
+      messages.push("Your battle continues");
     }
-    Interface.API.update(gameState, messages);
+    UI.API.update(gameState, messages);
   },
 };
 
-Interface.private = {
+UI.private = {
   resetActionButton: function () {
-    const actionButton = Interface.targets.queryActionButton();
+    const actionButton = UI.targets.queryActionButton();
     actionButton.setAttribute("disabled", "");
     actionButton.textContent = "Select Action...";
     actionButton.dataset.value = "";
@@ -59,7 +129,7 @@ Interface.private = {
 
   createMessageElement: function () {
     const messageElement = document.createElement("li");
-    Interface.targets.queryOutputStream().prepend(messageElement);
+    UI.targets.queryOutputStream().prepend(messageElement);
 
     return messageElement;
   },
@@ -69,14 +139,14 @@ Interface.private = {
   },
 
   streamMessage: function (message, onComplete) {
-    const messageElement = Interface.private.createMessageElement();
+    const messageElement = UI.private.createMessageElement();
     const messageLength = message.length;
     const typeDelay = 10; // milliseconds per character
     const halfSecond = 500;
 
     message.split("").forEach(function (character, index) {
       setTimeout(function () {
-        Interface.private.printCharacter(character, messageElement);
+        UI.private.printCharacter(character, messageElement);
       }, index * typeDelay);
     });
 
@@ -92,48 +162,42 @@ Interface.private = {
       return;
     }
 
-    Interface.private.streamMessage(messages[0], function () {
+    UI.private.streamMessage(messages[0], function () {
       if (messages.length > 1) {
-        Interface.private.streamMessages(messages.slice(1));
+        UI.private.streamMessages(messages.slice(1));
       }
     });
   },
 
   renderActions: function () {
-    const actionsMenu = Interface.targets.queryActionsMenu();
-    actionsMenu.innerHTML = Interface.markup.battleActions;
+    const actionsMenu = UI.targets.queryActionsMenu();
+    actionsMenu.innerHTML = UI.markup.battleActions;
   },
 
   initListeners: function () {
-    const battleActions = Interface.targets.queryBattleActions();
+    const battleActions = UI.targets.queryBattleActions();
 
     battleActions.forEach(function (battleAction) {
-      battleAction.removeEventListener(
-        "click",
-        Interface.private.onActionClick
-      );
-      battleAction.addEventListener("click", Interface.private.onActionClick);
+      battleAction.removeEventListener("click", UI.private.onActionClick);
+      battleAction.addEventListener("click", UI.private.onActionClick);
     });
 
-    const actionButton = Interface.targets.queryActionButton();
-    actionButton.removeEventListener(
-      "click",
-      Interface.private.onActionPerform
-    );
-    actionButton.addEventListener("click", Interface.private.onActionPerform);
+    const actionButton = UI.targets.queryActionButton();
+    actionButton.removeEventListener("click", UI.private.onActionPerform);
+    actionButton.addEventListener("click", UI.private.onActionPerform);
   },
 
   // TODO: clarify naming strategy here
   onActionPerform: function (event) {
-    Interface.API.onActionPerform(event.currentTarget);
+    UI.API.onActionPerform(event.currentTarget);
   },
 
   onActionClick: function (event) {
-    Interface.API.onOptionSelect(event.currentTarget);
+    UI.API.onOptionSelect(event.currentTarget);
   },
 };
 
-Interface.targets = {
+UI.targets = {
   queryBattleActions: function () {
     return document.querySelectorAll("[data-option='battleAction']");
   },
@@ -148,7 +212,7 @@ Interface.targets = {
   },
 };
 
-Interface.markup = {
+UI.markup = {
   battleActions: `
     <div class="button-row">
       <a class="button" data-option="battleAction" data-value="attack">attack</a> <!-- thrust, swing, slice -->
@@ -164,8 +228,46 @@ Core.API = {
   init: function () {
     return Core.private.init();
   },
-  handleAction: function () {
-    Core.state.enemy.health -= 1;
+  handleAction: function (playerAction) {
+    const enemyActionPool = Core.state.enemy.actions;
+    const enemyAction =
+      enemyActionPool[Math.floor(Math.random() * enemyActionPool.length)];
+
+    Core.state.enemyAction = enemyAction;
+    Core.state.playerAction = playerAction;
+
+    // naive rock paper scissors
+    if (playerAction == "attack") {
+      if (enemyAction == "attack") {
+        Core.state.actionResult = "draw";
+      } else if (enemyAction == "defend") {
+        Core.state.actionResult = "lose";
+        Core.state.player.health -= 1;
+      } else if (enemyAction == "cast") {
+        Core.state.actionResult = "win";
+        Core.state.enemy.health -= 1;
+      }
+    } else if (playerAction == "defend") {
+      if (enemyAction == "attack") {
+        Core.state.actionResult = "win";
+        Core.state.enemy.health -= 1;
+      } else if (enemyAction == "defend") {
+        Core.state.actionResult = "draw";
+      } else if (enemyAction == "cast") {
+        Core.state.actionResult = "lose";
+        Core.state.player.health -= 1;
+      }
+    } else if (playerAction == "cast") {
+      if (enemyAction == "attack") {
+        Core.state.actionResult = "lose";
+        Core.state.player.health -= 1;
+      } else if (enemyAction == "defend") {
+        Core.state.actionResult = "win";
+        Core.state.enemy.health -= 1;
+      } else if (enemyAction == "cast") {
+        Core.state.actionResult = "draw";
+      }
+    }
 
     return Core.state;
   },
@@ -183,12 +285,18 @@ Core.private = {
       type: "brute",
       kind: "orc",
       health: 5,
-      actions: ["attack"],
+      actions: ["attack", "defend", "cast"],
       tell: ["lifts his bludgeon"],
     };
   },
 };
 
 Core.state = {
+  player: {
+    health: 5,
+  },
   enemy: {},
+  enemyAction: "",
+  playerAction: "",
+  actionResult: "", // win, lose, draw
 };
