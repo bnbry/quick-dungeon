@@ -48,14 +48,18 @@ UI.API = {
       return;
     }
 
+    if (Core.state.player.health <= 0) {
+      UI.private.streamMessages(["You're already dead"]);
+      return;
+    } else if (Core.state.enemy.health <= 0) {
+      UI.private.streamMessages(["They're already dead"]);
+      return;
+    }
+
     const gameState = Core.API.handleAction(target.dataset.value);
     const playerAction = gameState.playerAction;
     const enemyAction = gameState.enemyAction;
     const messages = [];
-
-    if (gameState.playerAction == "attack") {
-    } else if (gameState.playerAction == "") {
-    }
 
     // naive rock paper scissors
     if (playerAction == "attack") {
@@ -113,6 +117,11 @@ UI.API = {
         "You won the dungeon because we're still coding it and this is as far as we've made it."
       );
     } else {
+      if (gameState.player.health == 2) {
+        messages.push("Your health is waning");
+      } else if (gameState.playerHealth == 1) {
+        messages.push("You are near death");
+      }
       messages.push("Your battle continues");
     }
     UI.API.update(gameState, messages);
@@ -142,7 +151,7 @@ UI.private = {
     const messageElement = UI.private.createMessageElement();
     const messageLength = message.length;
     const typeDelay = 10; // milliseconds per character
-    const halfSecond = 500;
+    const messageDelay = 750;
 
     message.split("").forEach(function (character, index) {
       setTimeout(function () {
@@ -154,7 +163,7 @@ UI.private = {
       if (onComplete) {
         onComplete();
       }
-    }, typeDelay * messageLength + halfSecond);
+    }, typeDelay * messageLength + messageDelay);
   },
 
   streamMessages: function (messages) {
@@ -284,7 +293,7 @@ Core.private = {
       name: "Gargul",
       type: "brute",
       kind: "orc",
-      health: 5,
+      health: 3,
       actions: ["attack", "defend", "cast"],
       tell: ["lifts his bludgeon"],
     };
@@ -293,7 +302,7 @@ Core.private = {
 
 Core.state = {
   player: {
-    health: 5,
+    health: 3,
   },
   enemy: {},
   enemyAction: "",
