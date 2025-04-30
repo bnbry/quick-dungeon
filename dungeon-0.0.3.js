@@ -21,7 +21,10 @@ UI.API = {
     const gameState = Core.API.init();
     const messages = [
       "Very much an early WIP. Thanks for sneaking a peek.",
-      `${gameState.enemy.name} the ${gameState.enemy.kind} stands before you.`,
+      "You wake in a torchlit cave. Sword, shield and magic catalyst.",
+      `${gameState.enemy.name} the ${gameState.enemy.kind} stands menacingly before you.`,
+      `They wield ${gameState.enemy.weapon}, shield, and pyromancer's flame.`,
+      "Select an action option and execute it with the primary button.",
     ];
     UI.API.update(gameState, messages);
   },
@@ -34,9 +37,24 @@ UI.API = {
   },
 
   onOptionSelect: function (target) {
-    UI.private.streamMessage(
-      `You have picked an action, ${target.dataset.value}`
-    );
+    const messages = [];
+    const actionValue = target.dataset.value;
+
+    if (actionValue == "attack") {
+      messages.push(
+        "You ready your sword to cut down your foe before they can cast a spell."
+      );
+    } else if (actionValue == "cast") {
+      messages.push(
+        "You mentally recite the incantation, preparing to pierce the foes defenses."
+      );
+    } else if (actionValue == "defend") {
+      messages.push(
+        "You flex your shield arm and prepare to block the foes melee attack."
+      );
+    }
+
+    UI.private.streamMessages(messages);
     const actionButton = UI.targets.queryActionButton();
     actionButton.dataset.value = target.dataset.value;
     actionButton.textContent = target.dataset.value;
@@ -66,12 +84,16 @@ UI.API = {
       messages.push("You swing your sword ferociously.");
 
       if (enemyAction == "attack") {
-        messages.push(`${gameState.enemy.name} swings their bludgeon.`);
-        messages.push("Sword and bludgeon clang against each other.");
+        messages.push(
+          `${gameState.enemy.name} swings their ${gameState.enemy.weapon}.`
+        );
+        messages.push(
+          `Sword and ${gameState.enemy.weapon} clang against each other.`
+        );
       } else if (enemyAction == "defend") {
         messages.push(`${gameState.enemy.name} raises their shield.`);
         messages.push(
-          "Your sword bounces off the enemies shield, leaving you open to a quick swipe of the bludgeon"
+          `Your sword bounces off the enemies shield, leaving you open to a quick swipe of the ${gameState.enemy.weapon}`
         );
       } else if (enemyAction == "cast") {
         messages.push(`${gameState.enemy.name} attempts to cast a spell`);
@@ -81,9 +103,11 @@ UI.API = {
       messages.push("You raise your shield and brace for impact.");
 
       if (enemyAction == "attack") {
-        messages.push(`${gameState.enemy.name} swings their bludgeon.`);
         messages.push(
-          "You deflect the bludgeon with your shield and strike back at the stunned foe."
+          `${gameState.enemy.name} swings their ${gameState.enemy.weapon}.`
+        );
+        messages.push(
+          `You deflect the ${gameState.enemy.weapon} with your shield and strike back at the stunned foe.`
         );
       } else if (enemyAction == "defend") {
         messages.push(`${gameState.enemy.name} raises their shield.`);
@@ -98,11 +122,13 @@ UI.API = {
       messages.push("You ready your catalyst to cast firebolt.");
 
       if (enemyAction == "attack") {
-        messages.push(`${gameState.enemy.name} swings their bludgeon.`);
+        messages.push(
+          `${gameState.enemy.name} swings their ${gameState.enemy.weapon}.`
+        );
         messages.push("It strikes you before your incantation is completed.");
       } else if (enemyAction == "defend") {
         messages.push(`${gameState.enemy.name} raises their shield.`);
-        messages.push("Shields offer no protection against your wizardy");
+        messages.push("Shields offer no protection against your wizardry");
       } else if (enemyAction == "cast") {
         messages.push(`${gameState.enemy.name} casts a magic barrier.`);
         messages.push("Your spell is unable to penetrate the barrier.");
@@ -117,11 +143,11 @@ UI.API = {
         "You won the dungeon because we're still coding it and this is as far as we've made it."
       );
     } else {
-      if (gameState.player.health == 2) {
-        messages.push("Your health is waning");
-      } else if (gameState.playerHealth == 1) {
-        messages.push("You are near death");
-      }
+      // if (gameState.player.health == 2) {
+      //   messages.push("Your health is waning");
+      // } else if (gameState.playerHealth == 1) {
+      //   messages.push("You are near death");
+      // }
       messages.push("Your battle continues");
     }
     UI.API.update(gameState, messages);
@@ -147,11 +173,10 @@ UI.private = {
     messageElement.textContent = messageElement.textContent + character;
   },
 
-  streamMessage: function (message, onComplete) {
-    const messageElement = UI.private.createMessageElement();
+  streamMessage: function (message, messageElement, onComplete) {
     const messageLength = message.length;
     const typeDelay = 10; // milliseconds per character
-    const messageDelay = 750;
+    const messageDelay = 400;
 
     message.split("").forEach(function (character, index) {
       setTimeout(function () {
@@ -166,14 +191,19 @@ UI.private = {
     }, typeDelay * messageLength + messageDelay);
   },
 
-  streamMessages: function (messages) {
+  streamMessages: function (messages, messageElement) {
     if (messages.length == 0) {
       return;
     }
 
-    UI.private.streamMessage(messages[0], function () {
+    if (messageElement === undefined) {
+      messageElement = UI.private.createMessageElement();
+    }
+
+    UI.private.streamMessage(messages[0], messageElement, function () {
       if (messages.length > 1) {
-        UI.private.streamMessages(messages.slice(1));
+        UI.private.printCharacter("\n\n", messageElement);
+        UI.private.streamMessages(messages.slice(1), messageElement);
       }
     });
   },
@@ -289,15 +319,213 @@ Core.private = {
     return Core.state;
   },
   generateEnemy: function () {
-    return {
-      name: "Gargul",
-      type: "brute",
-      kind: "orc",
-      health: 3,
-      actions: ["attack", "defend", "cast"],
-      tell: ["lifts his bludgeon"],
+    const enemyBase = Util.selectRandom(Core.private.enemies);
+    const enemy = {
+      ...enemyBase,
+      name: Util.selectRandom(Core.private.names),
     };
+
+    return enemy;
   },
+  enemies: [
+    {
+      type: "creep",
+      kind: "Goblin",
+      weapon: "dagger",
+      health: 2,
+      actions: ["attack", "defend", "defend", "cast"],
+    },
+    {
+      type: "brute",
+      kind: "Orc",
+      weapon: "axe",
+      health: 4,
+      actions: ["attack", "attack", "defend", "cast"],
+    },
+    {
+      type: "arcane",
+      kind: "Ghoul",
+      weapon: "sickle",
+      health: 3,
+      actions: ["attack", "defend", "cast", "cast"],
+    },
+  ],
+  /**
+   * Enemy Names
+   *
+   * This data is used to select a "unique" name for each enemy. The list is mostly taken from:
+   * https://medium.com/@barelyharebooks/a-master-list-of-300-fantasy-names-characters-towns-and-villages-47c113f6a90b
+   */ names: [
+    "Lydan",
+    "Syrin",
+    "Ptorik",
+    "Joz",
+    "Varog",
+    "Gethrod",
+    "Hezra",
+    "Feron",
+    "Ophni",
+    "Colborn",
+    "Fintis",
+    "Gatlin",
+    "Hagalbar",
+    "Krinn",
+    "Lenox",
+    "Revvyn",
+    "Hodus",
+    "Dimian",
+    "Paskel",
+    "Kontas",
+    "Azamarr",
+    "Jather",
+    "Tekren",
+    "Jareth",
+    "Adon",
+    "Zaden",
+    "Eune",
+    "Graff",
+    "Matti",
+    "Tez",
+    "Jessop",
+    "Gunnar",
+    "Pike",
+    "Domnhar",
+    "Baske",
+    "Jerrick",
+    "Tyvrik",
+    "Henndar",
+    "Jaris",
+    "Renham",
+    "Kagran",
+    "Lassrin",
+    "Gargul",
+    "Vadim",
+    "Yorjan",
+    "Khron",
+    "Jakrin",
+    "Fangar",
+    "Roux",
+    "Krisni",
+    "Baxar",
+    "Hawke",
+    "Gatlen",
+    "Barak",
+    "Kadric",
+    "Paquin",
+    "Moki",
+    "Rankar",
+    "Lothe",
+    "Ryven",
+    "Pakker",
+    "Embre",
+    "Verssek",
+    "Dagfinn",
+    "Nesso",
+    "Eldermar",
+    "Rivik",
+    "Rourke",
+    "Hemm",
+    "Sarkin",
+    "Blaiz",
+    "Agro",
+    "Zagaroth",
+    "Turrek",
+    "Esdel",
+    "Lustros",
+    "Zenner",
+    "Baashar",
+    "Dagrod",
+    "Gentar",
+    "Feston",
+    "Syrana",
+    "Resha",
+    "Varin",
+    "Yuni",
+    "Talis",
+    "Kessa",
+    "Magaltie",
+    "Desmina",
+    "Krynna",
+    "Asralyn",
+    "Herra",
+    "Pret",
+    "Tessel",
+    "Zara",
+    "Belen",
+    "Rei",
+    "Ciscra",
+    "Temy",
+    "Estyn",
+    "Maarika",
+    "Lynorr",
+    "Tiv",
+    "Annihya",
+    "Semet",
+    "Tamrin",
+    "Antia",
+    "Reslyn",
+    "Basak",
+    "Vixra",
+    "Pekka",
+    "Xavia",
+    "Beatha",
+    "Yarri",
+    "Liris",
+    "Sonali",
+    "Razra",
+    "Soko",
+    "Maeve",
+    "Everen",
+    "Yelina",
+    "Morwena",
+    "Hagar",
+    "Palra",
+    "Elysa",
+    "Ketra",
+    "Agama",
+    "Thesra",
+    "Tezani",
+    "Ralia",
+    "Naima",
+    "Rydna",
+    "Baakshi",
+    "Ibera",
+    "Phlox",
+    "Braithe",
+    "Taewen",
+    "Silene",
+    "Phressa",
+    "Anika",
+    "Rasy",
+    "Vita",
+    "Drusila",
+    "Minha",
+    "Surane",
+    "Lassona",
+    "Merula",
+    "Lyla",
+    "Zet",
+    "Orett",
+    "Naphtalia",
+    "Turi",
+    "Rhays",
+    "Shike",
+    "Hartie",
+    "Beela",
+    "Leska",
+    "Vemery",
+    "Lunex",
+    "Fidess",
+    "Tisette",
+    "Partha",
+    "Aleksi",
+    "Erol",
+    "Lorre",
+    "Renn",
+    "Dylane",
+    "Cormyl",
+    "Laurille",
+  ],
 };
 
 Core.state = {
@@ -308,4 +536,14 @@ Core.state = {
   enemyAction: "",
   playerAction: "",
   actionResult: "", // win, lose, draw
+};
+
+Util = {
+  selectRandom: function (collection) {
+    if (collection.length == 0) {
+      return undefined;
+    }
+
+    return collection[Math.floor(Math.random() * collection.length)];
+  },
 };

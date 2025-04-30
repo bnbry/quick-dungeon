@@ -97,6 +97,7 @@ footer {
   padding: 15px 10px;
   border-bottom: 1px solid var(--faint-color);
   margin: 0 10px;
+  white-space: pre-line;
 }
 
 .output-stream li:first-child {
