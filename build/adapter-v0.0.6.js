@@ -1,10 +1,52 @@
 // The Adapter layer translates between the Core layer and UI layer
-const Adapter = {
-  API: {},
-  private: {},
-};
+// It heavily relies on the Dungeon module to drive translations of the Core
+// information into presentable data for the UI
+let AdapterState = {};
 
-Adapter.API = {
+const Adapter = {
+  init: function () {
+    const gameState = Core.API.init();
+    AdapterState = {
+      ...AdapterState,
+      ...gameState,
+      messages: Adapter.introMessages(gameState),
+    };
+
+    return AdapterState;
+  },
+
+  commitAction: function (actionValue) {
+    let messages = [];
+
+    // TODO: lift into Core
+    if (AdapterState.player.health <= 0) {
+      messages = ["You're already dead"];
+      AdapterState = {
+        ...AdapterState,
+        messages,
+      };
+      return AdapterState;
+    } else if (AdapterState.enemy.health <= 0) {
+      messages = ["They're already dead"];
+      AdapterState = {
+        ...AdapterState,
+        messages,
+      };
+      return AdapterState;
+    }
+
+    const gameState = Core.API.handleAction(actionValue);
+    messages = Adapter.actionCommitMessages(gameState);
+
+    AdapterState = {
+      ...AdapterState,
+      ...gameState,
+      messages,
+    };
+
+    return AdapterState;
+  },
+
   introMessages: function (gameState) {
     const messages = [
       ...Dungeon.reset.messages.foreword(gameState),
@@ -27,7 +69,7 @@ Adapter.API = {
     return messages;
   },
 
-  actionPerformMessages: function (gameState) {
+  actionCommitMessages: function (gameState) {
     const playerAction = gameState.playerAction;
     const enemyAction = gameState.enemyAction;
 

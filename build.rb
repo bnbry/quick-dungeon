@@ -1,7 +1,7 @@
 require "fileutils"
 
 # naive build script
-VERSION = "v0.0.5"
+VERSION = "v0.0.6"
 SOURCE_PATH = "./src"
 BUILD_PATH = "./build"
 
