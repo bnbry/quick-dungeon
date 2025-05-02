@@ -20,6 +20,7 @@
   --dark-color:  #4D4D4D;
   --light-color: #808080;
   --white-color: #CCCCCC;
+  --ally-color: #BBBBFF;
 }
 
 * {
@@ -100,8 +101,26 @@ footer {
   white-space: pre-line;
 }
 
+.output-stream li span:after {
+  display: block;
+  content: " ";
+  height: 15px;
+}
+
+.output-stream li span:last-child:after {
+  height: 0px;
+}
+
+.output-stream .ally-message:before {
+  content: "> "
+}
+
 .output-stream li:first-child {
   color: var(--white-color);
+}
+
+.output-stream li:first-child .ally-message {
+  color: var(--ally-color);
 }
 
 .button-row {

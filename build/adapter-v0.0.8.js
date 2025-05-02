@@ -4,7 +4,7 @@
 
 const actionsMap = {
   // Attract Mode actions
-  start: { value: "start", display: "Start", commit: "Enter the dungeon" },
+  start: { value: "start", display: "Start", commit: "Wake up!" },
   tutorial: { value: "none", display: "Tutorial", commit: "Not yet" },
   about: { value: "none", display: "About", commit: "We don't have this" },
   // Battle Mode Actions
@@ -16,6 +16,13 @@ const actionsMap = {
   heal: { value: "heal", display: "Heal" },
   move: { value: "move", display: "Move" },
   // Reset Mode Actions
+  embark: {
+    value: "embark",
+    display: "Embark",
+    commit: "Enter the dungeon...",
+  },
+  rest: { value: "none", display: "Rest", commit: "Not yet" },
+  talk: { value: "none", display: "Talk", commit: "Not yet" },
   // TODO: make a reset mode
   // Utility actions
   none: { value: "none", display: "None", commit: "Select Action..." },

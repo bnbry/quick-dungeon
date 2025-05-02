@@ -14,8 +14,17 @@ const Core = {
     if (playerAction == "start") {
       Core.state.playerAction = playerAction;
       Core.state.selectedAction = "none";
+      Core.state.mode = "reset";
+      Core.state.actions = Core.private.availableActions(Core.state.mode);
+
+      return Core.state;
+    }
+
+    if (playerAction == "embark") {
+      Core.state.playerAction = playerAction;
+      Core.state.selectedAction = "none";
       Core.state.mode = "battle";
-      Core.state.actions = Core.private.availableActions("battle");
+      Core.state.actions = Core.private.availableActions(Core.state.mode);
 
       return Core.state;
     }
@@ -61,9 +70,9 @@ const Core = {
       }
     }
 
-    if (Core.state.enemy.health < 0) {
+    if (Core.state.enemy.health <= 0) {
       Core.state.mode = "victory";
-    } else if (Core.state.player.health < 0) {
+    } else if (Core.state.player.health <= 0) {
       Core.state.mode = "defeat";
     }
 
@@ -127,7 +136,7 @@ Core.private = {
     {
       type: "arcane",
       kind: "Skeleton",
-      melee: "scythe",
+      weapon: "scythe",
       health: 3,
       actions: ["attack", "defend", "cast", "cast"],
     },
@@ -312,6 +321,7 @@ Core.private = {
   availableActions: function (mode) {
     const actions = {
       attract: ["start", "tutorial", "about"],
+      reset: ["embark", "talk", "rest"],
       battle: ["attack", "cast", "defend"],
       victory: [],
       defeat: [],

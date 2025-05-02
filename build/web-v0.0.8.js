@@ -70,14 +70,17 @@ const Web = {
     messageElement.textContent = messageElement.textContent + character;
   },
 
-  streamMessage: function (message, messageElement, onComplete) {
+  streamMessage: function ({ source, message }, messageElement, onComplete) {
     const messageLength = message.length;
     const typeDelay = 5; // milliseconds per character
     const messageDelay = 100;
+    const messageSpan = document.createElement("span");
+    messageSpan.classList.add(`${source}-message`);
+    messageElement.append(messageSpan);
 
     message.split("").forEach(function (character, index) {
       setTimeout(function () {
-        Web.printCharacter(character, messageElement);
+        Web.printCharacter(character, messageSpan);
       }, index * typeDelay);
     });
 
@@ -99,7 +102,7 @@ const Web = {
 
     Web.streamMessage(messages[0], messageElement, function () {
       if (messages.length > 1) {
-        Web.printCharacter("\n\n", messageElement);
+        // Web.printCharacter("\n\n", messageElement);
         Web.streamMessages(messages.slice(1), messageElement);
       }
     });
