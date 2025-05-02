@@ -1,22 +1,32 @@
 // The Core layer handles all of the details of game logic and state
-const Core = {
-  API: {},
-  private: {},
-};
-
 // Core Game Logic
 
-Core.API = {
+const Core = {
   init: function () {
     return Core.private.init();
   },
+  selectAction: function (playerAction) {
+    Core.state.selectedAction = playerAction;
+
+    return Core.state;
+  },
   handleAction: function (playerAction) {
+    if (playerAction == "start") {
+      Core.state.playerAction = playerAction;
+      Core.state.selectedAction = "none";
+      Core.state.mode = "battle";
+      Core.state.actions = Core.private.availableActions("battle");
+
+      return Core.state;
+    }
+
     const enemyActionPool = Core.state.enemy.actions;
     const enemyAction =
       enemyActionPool[Math.floor(Math.random() * enemyActionPool.length)];
 
     Core.state.enemyAction = enemyAction;
     Core.state.playerAction = playerAction;
+    Core.state.selectedAction = "none";
 
     // naive rock paper scissors
     if (playerAction == "attack") {
@@ -51,6 +61,14 @@ Core.API = {
       }
     }
 
+    if (Core.state.enemy.health < 0) {
+      Core.state.mode = "victory";
+    } else if (Core.state.player.health < 0) {
+      Core.state.mode = "defeat";
+    }
+
+    Core.state.actions = Core.private.availableActions(Core.state.mode);
+
     return Core.state;
   },
 };
@@ -79,6 +97,13 @@ Core.private = {
       actions: ["attack", "defend", "defend", "cast"],
     },
     {
+      type: "creep",
+      kind: "Kobold",
+      weapon: "spear",
+      health: 2,
+      actions: ["attack", "defend", "defend", "cast"],
+    },
+    {
       type: "brute",
       kind: "Orc",
       weapon: "axe",
@@ -86,9 +111,23 @@ Core.private = {
       actions: ["attack", "attack", "defend", "cast"],
     },
     {
+      type: "brute",
+      kind: "Ogre",
+      weapon: "club",
+      health: 4,
+      actions: ["attack", "attack", "defend", "cast"],
+    },
+    {
       type: "arcane",
       kind: "Ghoul",
       weapon: "sickle",
+      health: 3,
+      actions: ["attack", "defend", "cast", "cast"],
+    },
+    {
+      type: "arcane",
+      kind: "Skeleton",
+      melee: "scythe",
       health: 3,
       actions: ["attack", "defend", "cast", "cast"],
     },
@@ -269,6 +308,17 @@ Core.private = {
     "Cormyl",
     "Laurille",
   ],
+
+  availableActions: function (mode) {
+    const actions = {
+      attract: ["start", "tutorial", "about"],
+      battle: ["attack", "cast", "defend"],
+      victory: [],
+      defeat: [],
+    };
+
+    return actions[mode];
+  },
 };
 
 Core.state = {
@@ -276,9 +326,12 @@ Core.state = {
     health: 3,
   },
   enemy: {},
-  enemyAction: "",
-  playerAction: "",
+  enemyAction: "none",
+  playerAction: "none",
   actionResult: "", // win, lose, draw
+  mode: "attract",
+  actions: Core.private.availableActions("attract"),
+  selectedAction: "none",
 };
 
 Util = {

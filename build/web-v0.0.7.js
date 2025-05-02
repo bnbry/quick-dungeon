@@ -4,52 +4,31 @@ const UI = {
   private: {},
 };
 
-let WebState = {
-  mode: "battle",
-  messages: [],
-  actions: [
-    {
-      value: "attack",
-      display: "Attack",
-    },
-    {
-      value: "cast",
-      display: "Cast",
-    },
-    {
-      value: "defend",
-      display: "Defend",
-    },
-  ],
-};
-
 const Web = {
   init: function () {
-    const newState = Adapter.init();
-    WebState = {
-      ...WebState,
-      ...newState,
-    };
-    Web.update();
+    const currentState = Adapter.init();
+
+    Web.update(currentState);
   },
 
-  update: function () {
-    UI.private.resetCommitButton();
-    UI.private.streamMessages(WebState.messages);
-    UI.private.renderActions(WebState.actions);
-    UI.private.initListeners();
+  update: function (currentState) {
+    Web.updateCommitButton(currentState.selectedAction);
+    Web.streamMessages(currentState.messages);
+    Web.renderActions(currentState.actions);
+    Web.initListeners();
   },
 
   onActionSelect: function (event) {
     const target = event.currentTarget;
-    const actionValue = target.dataset.value;
-    const messages = Adapter.optionSelectMessages(actionValue);
-    UI.private.streamMessages(messages);
 
-    const commitButton = UI.targets.queryCommitButton();
-    commitButton.dataset.value = target.dataset.value;
-    commitButton.textContent = target.dataset.value;
-    commitButton.removeAttribute("disabled");
+    if (target.hasAttribute("disabled")) {
+      return;
+    }
+
+    const actionValue = target.dataset.value;
+    const newState = Adapter.selectAction(actionValue);
+
+    Web.update(newState);
   },
 
   onActionCommit: function (event) {
@@ -59,24 +38,25 @@ const Web = {
       return;
     }
 
-    // TODO: lift into Adapter
     const newState = Adapter.commitAction(target.dataset.value);
 
-    WebState = {
-      ...WebState,
-      ...newState,
-    };
-
-    Web.update();
+    Web.update(newState);
   },
-};
 
-UI.private = {
-  resetCommitButton: function () {
-    const commitButton = UI.targets.queryCommitButton();
-    commitButton.setAttribute("disabled", "");
-    commitButton.textContent = "Select Action...";
-    commitButton.dataset.value = "";
+  updateCommitButton: function (selectedAction) {
+    const commitButton = Web.queryCommitButton();
+    commitButton.dataset.value = selectedAction.value;
+    commitButton.textContent = selectedAction.commit;
+
+    if (selectedAction.value == "none") {
+      commitButton.setAttribute("disabled", "");
+    } else {
+      commitButton.removeAttribute("disabled");
+    }
+  },
+
+  queryCommitButton: function () {
+    return document.querySelector("[data-target='commit']");
   },
 
   createMessageElement: function () {
@@ -97,7 +77,7 @@ UI.private = {
 
     message.split("").forEach(function (character, index) {
       setTimeout(function () {
-        UI.private.printCharacter(character, messageElement);
+        Web.printCharacter(character, messageElement);
       }, index * typeDelay);
     });
 
@@ -114,20 +94,20 @@ UI.private = {
     }
 
     if (messageElement === undefined) {
-      messageElement = UI.private.createMessageElement();
+      messageElement = Web.createMessageElement();
     }
 
-    UI.private.streamMessage(messages[0], messageElement, function () {
+    Web.streamMessage(messages[0], messageElement, function () {
       if (messages.length > 1) {
-        UI.private.printCharacter("\n\n", messageElement);
-        UI.private.streamMessages(messages.slice(1), messageElement);
+        Web.printCharacter("\n\n", messageElement);
+        Web.streamMessages(messages.slice(1), messageElement);
       }
     });
   },
 
-  renderActions: function () {
+  renderActions: function (actions) {
     const actionsMenu = UI.targets.queryActionsMenu();
-    actionsMenu.innerHTML = UI.markup.actionRow(WebState.actions);
+    actionsMenu.innerHTML = UI.markup.actionRow(actions);
   },
 
   initListeners: function () {
@@ -138,7 +118,7 @@ UI.private = {
       battleAction.addEventListener("click", Web.onActionSelect);
     });
 
-    const actionButton = UI.targets.queryCommitButton();
+    const actionButton = Web.queryCommitButton();
     actionButton.removeEventListener("click", Web.onActionCommit);
     actionButton.addEventListener("click", Web.onActionCommit);
   },
@@ -150,9 +130,6 @@ UI.targets = {
   },
   queryActionsMenu: function () {
     return document.querySelector("[data-target='actions-menu']");
-  },
-  queryCommitButton: function () {
-    return document.querySelector("[data-target='commit']");
   },
   queryOutputStream: function () {
     return document.querySelector("[data-target='output-stream']");
@@ -168,6 +145,12 @@ UI.markup = {
     `;
   },
   actionButton: function (action) {
-    return `<a class="button" data-target="action" data-value="${action.value}">${action.display}</a>`;
+    let disabled = "";
+
+    if (action.value == "none") {
+      disabled = "disabled";
+    }
+
+    return `<a class="button" data-target="action" data-value="${action.value}" data-commit="${action.commit}" ${disabled}>${action.display}</a>`;
   },
 };
