@@ -78,6 +78,10 @@ const Web = {
     messageSpan.classList.add(`${source}-message`);
     messageElement.append(messageSpan);
 
+    if (Array.isArray(message)) {
+      message = Util.selectRandom(message);
+    }
+
     message.split("").forEach(function (character, index) {
       setTimeout(function () {
         Web.printCharacter(character, messageSpan);

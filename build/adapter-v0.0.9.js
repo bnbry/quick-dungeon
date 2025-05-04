@@ -23,7 +23,8 @@ const actionsMap = {
   },
   rest: { value: "none", display: "Rest", commit: "Not yet" },
   talk: { value: "none", display: "Talk", commit: "Not yet" },
-  // TODO: make a reset mode
+  // Defeat mode after failing a fight
+  wake: { value: "wake", display: "Wake", commit: "Wake up!" },
   // Utility actions
   none: { value: "none", display: "None", commit: "Select Action..." },
 };

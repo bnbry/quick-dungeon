@@ -4,6 +4,7 @@
   --dark-color:  #332E4D;
   --light-color: #554D80;
   --white-color: #B3ADCC;
+  --ally-color: #d99afb;
 }
 
 .theme-green {
@@ -12,6 +13,7 @@
   --dark-color:  #454D2E;
   --light-color: #73804D;
   --white-color: #C4CCAD;
+  --ally-color: #fdff9c;
 }
 
 .theme-grey {
@@ -20,7 +22,7 @@
   --dark-color:  #4D4D4D;
   --light-color: #808080;
   --white-color: #CCCCCC;
-  --ally-color: #BBBBFF;
+  --ally-color: #a3a3ff;
 }
 
 * {

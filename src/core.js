@@ -11,24 +11,41 @@ const Core = {
     return Core.state;
   },
   handleAction: function (playerAction) {
-    if (playerAction == "start") {
-      Core.state.playerAction = playerAction;
-      Core.state.selectedAction = "none";
-      Core.state.mode = "reset";
-      Core.state.actions = Core.private.availableActions(Core.state.mode);
-
-      return Core.state;
+    switch (playerAction) {
+      case "start":
+        return Core.enterReset();
+      case "embark":
+        return Core.enterBattle();
+      case "wake":
+        return Core.enterReset();
+      default:
+        return Core.handleBattle();
     }
+  },
 
-    if (playerAction == "embark") {
-      Core.state.playerAction = playerAction;
-      Core.state.selectedAction = "none";
-      Core.state.mode = "battle";
-      Core.state.actions = Core.private.availableActions(Core.state.mode);
+  enterReset: function () {
+    Core.state.player.health = 3;
+    Core.state.player.perception += 1;
+    Core.state.playerAction = Core.state.selectedAction;
+    Core.state.enemyAction = "none";
+    Core.state.selectedAction = "none";
+    Core.state.mode = "reset";
+    Core.state.actions = Core.private.availableActions(Core.state.mode);
 
-      return Core.state;
-    }
+    return Core.state;
+  },
 
+  enterBattle: function () {
+    Core.state.playerAction = Core.state.selectedAction;
+    Core.state.selectedAction = "none";
+    Core.state.mode = "battle";
+    Core.state.actions = Core.private.availableActions(Core.state.mode);
+
+    return Core.state;
+  },
+
+  handleBattle: function () {
+    const playerAction = Core.state.selectedAction;
     const enemyActionPool = Core.state.enemy.actions;
     const enemyAction =
       enemyActionPool[Math.floor(Math.random() * enemyActionPool.length)];
@@ -324,7 +341,7 @@ Core.private = {
       reset: ["embark", "talk", "rest"],
       battle: ["attack", "cast", "defend"],
       victory: [],
-      defeat: [],
+      defeat: ["wake"],
     };
 
     return actions[mode];
@@ -334,6 +351,7 @@ Core.private = {
 Core.state = {
   player: {
     health: 3,
+    perception: 0,
   },
   enemy: {},
   enemyAction: "none",

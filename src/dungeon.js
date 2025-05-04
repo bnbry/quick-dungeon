@@ -38,7 +38,10 @@ const Dungeon = {
         return [
           {
             source: "game",
-            message: `${gameState.enemy.name} the ${gameState.enemy.kind} stands menacingly before you.`,
+            message: [
+              `${gameState.enemy.name} the ${gameState.enemy.kind} stands menacingly before you.`,
+              `A strange creature roars and readies itself for battle`,
+            ],
           },
           {
             source: "ally",
@@ -89,7 +92,16 @@ const Dungeon = {
             message:
               "Sorry it didn't work out. Upside is I am taking your magic catalyst.",
           },
+          {
+            source: "game",
+            message: "Death is not the end",
+          },
         ];
+      },
+    },
+    defeat: {
+      reset: function (gameState) {
+        return [{ source: "game", message: ["wake again"] }];
       },
     },
   },
@@ -139,9 +151,24 @@ const Dungeon = {
         },
       ];
     },
+    wake: function (gameState) {
+      return [
+        { source: "game", message: "Wake up and continue your journey." },
+        { source: "ally", message: "Everyone dies their first time." },
+      ];
+    },
   },
   commit: {
     start: {
+      perform: function (gameState) {
+        return [];
+      },
+      none: function (gameState) {
+        return [];
+      },
+    },
+
+    wake: {
       perform: function (gameState) {
         return [];
       },
