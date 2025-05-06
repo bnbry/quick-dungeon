@@ -20,7 +20,7 @@ const actionsMap = {
   inspect: { value: "none", display: "Inspect", commit: "Not yet" },
   talk: { value: "none", display: "Talk", commit: "Not yet" },
   // Defeat mode after failing a fight
-  wake: { value: "wake", display: "Wake", commit: "Wake up!" },
+  reset: { value: "reset", display: "Wake", commit: "Wake up!" },
   // Utility actions
   none: { value: "none", display: "None", commit: "Select Action..." },
 };

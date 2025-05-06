@@ -31,19 +31,26 @@ const Core = {
   },
 
   handleAction: function (playerAction) {
-    switch (playerAction) {
-      case "start":
-        return Core.handleStart();
-      case "move":
-        return Core.handleMove();
-      case "wake":
-        return Core.handleWake();
-      default:
-        return Core.handleBattle();
-    }
+    const action = playerAction.charAt(0).toUpperCase() + playerAction.slice(1);
+
+    console.log(action);
+
+    return Core[`handle${action}`]();
   },
 
   handleStart: function () {
+    return Core.enterReset();
+  },
+
+  handleTutorial: function () {
+    return CoreState;
+  },
+
+  handleAbout: function () {
+    return CoreState;
+  },
+
+  handleReset: function () {
     return Core.enterReset();
   },
 
@@ -51,8 +58,76 @@ const Core = {
     return Core.enterBattle();
   },
 
-  handleWake: function () {
-    return Core.enterReset();
+  handleTalk: function () {
+    return CoreState;
+  },
+
+  handleInspect: function () {
+    return CoreState;
+  },
+
+  handleAttack: function () {
+    Core.commitBattleActions();
+    const enemyAction = CoreState.enemyAction;
+
+    if (enemyAction == "attack") {
+      CoreState.actionResult = "draw";
+    } else if (enemyAction == "defend") {
+      CoreState.actionResult = "lose";
+      CoreState.player.health -= 1;
+    } else if (enemyAction == "cast") {
+      CoreState.actionResult = "win";
+      CoreState.enemy.health -= 1;
+    }
+
+    console.log(enemyAction);
+    console.log(CoreState.player.health);
+    console.log(CoreState.enemy.health);
+
+    Core.checkHealthState();
+    Core.updateActions();
+
+    return CoreState;
+  },
+
+  handleDefend: function () {
+    Core.commitBattleActions();
+    const enemyAction = CoreState.enemyAction;
+
+    if (enemyAction == "attack") {
+      CoreState.actionResult = "win";
+      CoreState.enemy.health -= 1;
+    } else if (enemyAction == "defend") {
+      CoreState.actionResult = "draw";
+    } else if (enemyAction == "cast") {
+      CoreState.actionResult = "lose";
+      CoreState.player.health -= 1;
+    }
+
+    Core.checkHealthState();
+    Core.updateActions();
+
+    return CoreState;
+  },
+
+  handleCast: function () {
+    Core.commitBattleActions();
+    const enemyAction = CoreState.enemyAction;
+
+    if (enemyAction == "attack") {
+      CoreState.actionResult = "lose";
+      CoreState.player.health -= 1;
+    } else if (enemyAction == "defend") {
+      CoreState.actionResult = "win";
+      CoreState.enemy.health -= 1;
+    } else if (enemyAction == "cast") {
+      CoreState.actionResult = "draw";
+    }
+
+    Core.checkHealthState();
+    Core.updateActions();
+
+    return CoreState;
   },
 
   enterReset: function () {
@@ -85,58 +160,30 @@ const Core = {
     return coreState.rooms[currentRoom].enemy;
   },
 
-  handleBattle: function () {
+  commitBattleActions: function () {
     const playerAction = CoreState.selectedAction;
     const enemyActionPool = CoreState.enemy.actions;
     const enemyAction =
       enemyActionPool[Math.floor(Math.random() * enemyActionPool.length)];
 
+    console.log(playerAction);
+    console.log(enemyActionPool);
+    console.log(enemyAction);
     CoreState.enemyAction = enemyAction;
     CoreState.playerAction = playerAction;
     CoreState.selectedAction = "none";
+  },
 
-    // naive rock paper scissors
-    if (playerAction == "attack") {
-      if (enemyAction == "attack") {
-        CoreState.actionResult = "draw";
-      } else if (enemyAction == "defend") {
-        CoreState.actionResult = "lose";
-        CoreState.player.health -= 1;
-      } else if (enemyAction == "cast") {
-        CoreState.actionResult = "win";
-        CoreState.enemy.health -= 1;
-      }
-    } else if (playerAction == "defend") {
-      if (enemyAction == "attack") {
-        CoreState.actionResult = "win";
-        CoreState.enemy.health -= 1;
-      } else if (enemyAction == "defend") {
-        CoreState.actionResult = "draw";
-      } else if (enemyAction == "cast") {
-        CoreState.actionResult = "lose";
-        CoreState.player.health -= 1;
-      }
-    } else if (playerAction == "cast") {
-      if (enemyAction == "attack") {
-        CoreState.actionResult = "lose";
-        CoreState.player.health -= 1;
-      } else if (enemyAction == "defend") {
-        CoreState.actionResult = "win";
-        CoreState.enemy.health -= 1;
-      } else if (enemyAction == "cast") {
-        CoreState.actionResult = "draw";
-      }
-    }
-
+  checkHealthState: function () {
     if (CoreState.enemy.health <= 0) {
       CoreState.mode = "victory";
     } else if (CoreState.player.health <= 0) {
       CoreState.mode = "defeat";
     }
+  },
 
+  updateActions: function () {
     CoreState.actions = Core.availableActions(CoreState.mode);
-
-    return CoreState;
   },
 
   generateRooms: function () {
@@ -426,7 +473,7 @@ const Core = {
       reset: ["move", "talk", "inspect"],
       battle: ["attack", "cast", "defend"],
       victory: ["move"],
-      defeat: ["wake"],
+      defeat: ["reset"],
     };
 
     return actions[mode];

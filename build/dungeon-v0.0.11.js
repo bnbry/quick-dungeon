@@ -151,7 +151,7 @@ const Dungeon = {
         },
       ];
     },
-    wake: function (gameState) {
+    reset: function (gameState) {
       return [
         { source: "game", message: "Wake up and continue your journey." },
         { source: "ally", message: "Everyone dies their first time." },
@@ -168,7 +168,7 @@ const Dungeon = {
       },
     },
 
-    wake: {
+    reset: {
       perform: function (gameState) {
         return [];
       },
