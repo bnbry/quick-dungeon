@@ -1,125 +1,201 @@
 // The Core layer handles all of the details of game logic and state
 // Core Game Logic
+let CoreState = {};
 
 const Core = {
   init: function () {
-    return Core.private.init();
-  },
-  selectAction: function (playerAction) {
-    Core.state.selectedAction = playerAction;
+    CoreState = {
+      player: {
+        health: 3,
+        maxHealth: 3,
+        perception: 0,
+      },
+      enemy: {},
+      rooms: Core.generateRooms(),
+      currentRoom: 0,
+      enemyAction: "none",
+      playerAction: "none",
+      actionResult: "", // win, lose, draw
+      mode: "attract",
+      actions: Core.availableActions("attract"),
+      selectedAction: "none",
+    };
 
-    return Core.state;
+    return CoreState;
   },
+
+  selectAction: function (playerAction) {
+    CoreState.selectedAction = playerAction;
+
+    return CoreState;
+  },
+
   handleAction: function (playerAction) {
     switch (playerAction) {
       case "start":
-        return Core.enterReset();
-      case "embark":
-        return Core.enterBattle();
+        return Core.handleStart();
+      case "move":
+        return Core.handleMove();
       case "wake":
-        return Core.enterReset();
+        return Core.handleWake();
       default:
         return Core.handleBattle();
     }
   },
 
-  enterReset: function () {
-    Core.state.player.health = 3;
-    Core.state.player.perception += 1;
-    Core.state.playerAction = Core.state.selectedAction;
-    Core.state.enemyAction = "none";
-    Core.state.selectedAction = "none";
-    Core.state.mode = "reset";
-    Core.state.actions = Core.private.availableActions(Core.state.mode);
+  handleStart: function () {
+    return Core.enterReset();
+  },
 
-    return Core.state;
+  handleMove: function () {
+    return Core.enterBattle();
+  },
+
+  handleWake: function () {
+    return Core.enterReset();
+  },
+
+  enterReset: function () {
+    CoreState.currentRoom = 1;
+    CoreState.player.health = 3;
+    CoreState.player.perception += 1;
+    CoreState.playerAction = CoreState.selectedAction;
+    CoreState.enemyAction = "none";
+    CoreState.selectedAction = "none";
+    CoreState.mode = "reset";
+    CoreState.actions = Core.availableActions(CoreState.mode);
+
+    return CoreState;
   },
 
   enterBattle: function () {
-    Core.state.playerAction = Core.state.selectedAction;
-    Core.state.selectedAction = "none";
-    Core.state.mode = "battle";
-    Core.state.actions = Core.private.availableActions(Core.state.mode);
+    CoreState.currentRoom = 2;
+    CoreState.playerAction = CoreState.selectedAction;
+    CoreState.selectedAction = "none";
+    CoreState.mode = "battle";
+    CoreState.actions = Core.availableActions(CoreState.mode);
+    CoreState.enemy = Core.currentEnemy(CoreState);
 
-    return Core.state;
+    return CoreState;
+  },
+
+  currentEnemy: function (coreState) {
+    const currentRoom = coreState.currentRoom;
+
+    return coreState.rooms[currentRoom].enemy;
   },
 
   handleBattle: function () {
-    const playerAction = Core.state.selectedAction;
-    const enemyActionPool = Core.state.enemy.actions;
+    const playerAction = CoreState.selectedAction;
+    const enemyActionPool = CoreState.enemy.actions;
     const enemyAction =
       enemyActionPool[Math.floor(Math.random() * enemyActionPool.length)];
 
-    Core.state.enemyAction = enemyAction;
-    Core.state.playerAction = playerAction;
-    Core.state.selectedAction = "none";
+    CoreState.enemyAction = enemyAction;
+    CoreState.playerAction = playerAction;
+    CoreState.selectedAction = "none";
 
     // naive rock paper scissors
     if (playerAction == "attack") {
       if (enemyAction == "attack") {
-        Core.state.actionResult = "draw";
+        CoreState.actionResult = "draw";
       } else if (enemyAction == "defend") {
-        Core.state.actionResult = "lose";
-        Core.state.player.health -= 1;
+        CoreState.actionResult = "lose";
+        CoreState.player.health -= 1;
       } else if (enemyAction == "cast") {
-        Core.state.actionResult = "win";
-        Core.state.enemy.health -= 1;
+        CoreState.actionResult = "win";
+        CoreState.enemy.health -= 1;
       }
     } else if (playerAction == "defend") {
       if (enemyAction == "attack") {
-        Core.state.actionResult = "win";
-        Core.state.enemy.health -= 1;
+        CoreState.actionResult = "win";
+        CoreState.enemy.health -= 1;
       } else if (enemyAction == "defend") {
-        Core.state.actionResult = "draw";
+        CoreState.actionResult = "draw";
       } else if (enemyAction == "cast") {
-        Core.state.actionResult = "lose";
-        Core.state.player.health -= 1;
+        CoreState.actionResult = "lose";
+        CoreState.player.health -= 1;
       }
     } else if (playerAction == "cast") {
       if (enemyAction == "attack") {
-        Core.state.actionResult = "lose";
-        Core.state.player.health -= 1;
+        CoreState.actionResult = "lose";
+        CoreState.player.health -= 1;
       } else if (enemyAction == "defend") {
-        Core.state.actionResult = "win";
-        Core.state.enemy.health -= 1;
+        CoreState.actionResult = "win";
+        CoreState.enemy.health -= 1;
       } else if (enemyAction == "cast") {
-        Core.state.actionResult = "draw";
+        CoreState.actionResult = "draw";
       }
     }
 
-    if (Core.state.enemy.health <= 0) {
-      Core.state.mode = "victory";
-    } else if (Core.state.player.health <= 0) {
-      Core.state.mode = "defeat";
+    if (CoreState.enemy.health <= 0) {
+      CoreState.mode = "victory";
+    } else if (CoreState.player.health <= 0) {
+      CoreState.mode = "defeat";
     }
 
-    Core.state.actions = Core.private.availableActions(Core.state.mode);
+    CoreState.actions = Core.availableActions(CoreState.mode);
 
-    return Core.state;
+    return CoreState;
   },
-};
 
-Core.private = {
-  initialized: false,
-  init: function () {
-    Core.state.enemy = Core.private.generateEnemy();
-    return Core.state;
+  generateRooms: function () {
+    return [
+      {
+        mode: "attract",
+        enemy: {},
+        discovered: true,
+      },
+      {
+        mode: "reset",
+        enemy: {},
+        discovered: true,
+      },
+      {
+        mode: "battle",
+        enemy: Core.generateEnemy(),
+        discovered: false,
+      },
+      {
+        mode: "battle",
+        enemy: Core.generateEnemy(),
+        discovered: false,
+      },
+      {
+        mode: "battle",
+        enemy: Core.generateBoss(),
+        discovered: false,
+      },
+    ];
   },
-  generateEnemy: function () {
-    const enemyBase = Util.selectRandom(Core.private.enemies);
+
+  generateBoss: function () {
+    const enemyBase = Util.selectRandom(Core.bosses);
     const enemy = {
       ...enemyBase,
-      name: Util.selectRandom(Core.private.names),
+      name: Util.selectRandom(Core.names),
     };
 
     return enemy;
   },
+
+  generateEnemy: function () {
+    const enemyBase = Util.selectRandom(Core.enemies);
+    const enemy = {
+      ...enemyBase,
+      name: Util.selectRandom(Core.names),
+    };
+
+    return enemy;
+  },
+
   enemies: [
     {
       type: "creep",
       kind: "Goblin",
       weapon: "dagger",
       health: 2,
+      maxHealth: 2,
       actions: ["attack", "defend", "defend", "cast"],
     },
     {
@@ -127,6 +203,7 @@ Core.private = {
       kind: "Kobold",
       weapon: "spear",
       health: 2,
+      maxHealth: 2,
       actions: ["attack", "defend", "defend", "cast"],
     },
     {
@@ -134,6 +211,7 @@ Core.private = {
       kind: "Orc",
       weapon: "axe",
       health: 4,
+      maxHealth: 4,
       actions: ["attack", "attack", "defend", "cast"],
     },
     {
@@ -141,6 +219,7 @@ Core.private = {
       kind: "Ogre",
       weapon: "club",
       health: 4,
+      maxHealth: 4,
       actions: ["attack", "attack", "defend", "cast"],
     },
     {
@@ -148,14 +227,19 @@ Core.private = {
       kind: "Ghoul",
       weapon: "sickle",
       health: 3,
+      maxHealth: 3,
       actions: ["attack", "defend", "cast", "cast"],
     },
+  ],
+
+  bosses: [
     {
       type: "arcane",
-      kind: "Skeleton",
+      kind: "Lich",
       weapon: "scythe",
-      health: 3,
-      actions: ["attack", "defend", "cast", "cast"],
+      health: 6,
+      maxHealth: 6,
+      actions: ["attack", "defend", "defend", "cast", "cast", "cast"],
     },
   ],
   /**
@@ -163,7 +247,8 @@ Core.private = {
    *
    * This data is used to select a "unique" name for each enemy. The list is mostly taken from:
    * https://medium.com/@barelyharebooks/a-master-list-of-300-fantasy-names-characters-towns-and-villages-47c113f6a90b
-   */ names: [
+   */
+  names: [
     "Lydan",
     "Syrin",
     "Ptorik",
@@ -338,28 +423,14 @@ Core.private = {
   availableActions: function (mode) {
     const actions = {
       attract: ["start", "tutorial", "about"],
-      reset: ["embark", "talk", "rest"],
+      reset: ["move", "talk", "inspect"],
       battle: ["attack", "cast", "defend"],
-      victory: [],
+      victory: ["move"],
       defeat: ["wake"],
     };
 
     return actions[mode];
   },
-};
-
-Core.state = {
-  player: {
-    health: 3,
-    perception: 0,
-  },
-  enemy: {},
-  enemyAction: "none",
-  playerAction: "none",
-  actionResult: "", // win, lose, draw
-  mode: "attract",
-  actions: Core.private.availableActions("attract"),
-  selectedAction: "none",
 };
 
 Util = {

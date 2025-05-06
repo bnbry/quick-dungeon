@@ -11,17 +11,13 @@ const actionsMap = {
   attack: { value: "attack", display: "Attack", commit: "Swing sword" },
   cast: { value: "cast", display: "Cast", commit: "Cast firebolt" },
   defend: { value: "defend", display: "Defend", commit: "Raise shield" },
-  // Victory Mode Actions
-  inspect: { value: "inspect", display: "Inspect" },
-  heal: { value: "heal", display: "Heal" },
-  move: { value: "move", display: "Move" },
-  // Reset Mode Actions
-  embark: {
-    value: "embark",
+  // Victory and Reset Mode Actions
+  move: {
+    value: "move",
     display: "Embark",
     commit: "Enter the dungeon...",
   },
-  rest: { value: "none", display: "Rest", commit: "Not yet" },
+  inspect: { value: "none", display: "Inspect", commit: "Not yet" },
   talk: { value: "none", display: "Talk", commit: "Not yet" },
   // Defeat mode after failing a fight
   wake: { value: "wake", display: "Wake", commit: "Wake up!" },

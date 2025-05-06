@@ -109,7 +109,7 @@ const Dungeon = {
     start: function (gameState) {
       return [{ source: "game", message: "Wake up and start your journey." }];
     },
-    embark: function (gameState) {
+    move: function (gameState) {
       return [
         { source: "game", message: "Enter the dungeon if you dare..." },
         {
@@ -177,7 +177,7 @@ const Dungeon = {
       },
     },
 
-    embark: {
+    move: {
       perform: function (gameState) {
         return [];
       },
