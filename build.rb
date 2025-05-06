@@ -1,7 +1,7 @@
 require "fileutils"
 
 # naive build script
-VERSION = "v0.0.11"
+VERSION = "v0.0.12"
 SOURCE_PATH = "./src"
 BUILD_PATH = "./build"
 
@@ -27,6 +27,6 @@ end
 # replace versions in base index with new version
 INDEX_FILE = "./index.html"
 index_content = File.read(INDEX_FILE)
-updated_content = index_content.gsub(/v\d\.\d\.\d/, VERSION)
+updated_content = index_content.gsub(/v\d+\.\d+\.\d+/, VERSION)
 
 File.write(INDEX_FILE, updated_content)
