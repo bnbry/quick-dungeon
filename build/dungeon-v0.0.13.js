@@ -68,16 +68,6 @@ const Dungeon = {
             source: "game",
             message: `${gameState.enemy.name} has been defeated.`,
           },
-          {
-            source: "game",
-            message:
-              "You won the dungeon because we're still coding it and this is as far as we've made it.",
-          },
-          {
-            source: "ally",
-            message:
-              "Seemed kind of easy, I wouldn't pat yourself on the back too much.",
-          },
         ];
       },
       defeat: function (gameState) {
@@ -102,6 +92,45 @@ const Dungeon = {
     defeat: {
       reset: function (gameState) {
         return [{ source: "game", message: ["wake again"] }];
+      },
+    },
+    victory: {
+      battle: function (gameState) {
+        return [
+          {
+            source: "game",
+            message: [
+              `${gameState.enemy.name} the ${gameState.enemy.kind} stands menacingly before you.`,
+              `A strange creature roars and readies itself for battle`,
+            ],
+          },
+          {
+            source: "ally",
+            message: `They don't look friendly.`,
+          },
+          {
+            source: "game",
+            message: `They wield ${gameState.enemy.weapon}, shield, and pyromancer's flame.`,
+          },
+          {
+            source: "ally",
+            message: `Is that pyromancy? I'm going to loot your corpse when you die.`,
+          },
+        ];
+      },
+      ending: function (gameState) {
+        return [
+          {
+            source: "game",
+            message:
+              "You won the dungeon because we're still coding it and this is as far as we've made it.",
+          },
+          {
+            source: "ally",
+            message:
+              "Seemed kind of easy, I wouldn't pat yourself on the back too much.",
+          },
+        ];
       },
     },
   },

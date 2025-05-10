@@ -13,12 +13,12 @@ const Core = {
       enemy: {},
       rooms: Core.generateRooms(),
       currentRoom: 0,
-      enemyAction: "none",
-      playerAction: "none",
-      actionResult: "", // win, lose, draw
       mode: "attract",
       actions: Core.availableActions("attract"),
       selectedAction: "none",
+      playerAction: "none",
+      enemyAction: "none",
+      actionResult: "", // win, lose, draw
     };
 
     return CoreState;
@@ -31,11 +31,11 @@ const Core = {
   },
 
   handleAction: function (playerAction) {
-    const action = playerAction.charAt(0).toUpperCase() + playerAction.slice(1);
+    return Core.actionHandlers[playerAction]();
+  },
 
-    console.log(action);
-
-    return Core[`handle${action}`]();
+  handleNone: function () {
+    return CoreState;
   },
 
   handleStart: function () {
@@ -55,6 +55,12 @@ const Core = {
   },
 
   handleMove: function () {
+    CoreState.currentRoom += 1;
+
+    if (CoreState.currentRoom >= CoreState.rooms.length) {
+      return Core.enterEnding();
+    }
+
     return Core.enterBattle();
   },
 
@@ -71,18 +77,12 @@ const Core = {
     const enemyAction = CoreState.enemyAction;
 
     if (enemyAction == "attack") {
-      CoreState.actionResult = "draw";
+      Core.drawTurn();
     } else if (enemyAction == "defend") {
-      CoreState.actionResult = "lose";
-      CoreState.player.health -= 1;
+      Core.loseTurn();
     } else if (enemyAction == "cast") {
-      CoreState.actionResult = "win";
-      CoreState.enemy.health -= 1;
+      Core.winTurn();
     }
-
-    console.log(enemyAction);
-    console.log(CoreState.player.health);
-    console.log(CoreState.enemy.health);
 
     Core.checkHealthState();
     Core.updateActions();
@@ -95,13 +95,11 @@ const Core = {
     const enemyAction = CoreState.enemyAction;
 
     if (enemyAction == "attack") {
-      CoreState.actionResult = "win";
-      CoreState.enemy.health -= 1;
+      Core.winTurn();
     } else if (enemyAction == "defend") {
-      CoreState.actionResult = "draw";
+      Core.drawTurn();
     } else if (enemyAction == "cast") {
-      CoreState.actionResult = "lose";
-      CoreState.player.health -= 1;
+      Core.loseTurn();
     }
 
     Core.checkHealthState();
@@ -115,13 +113,11 @@ const Core = {
     const enemyAction = CoreState.enemyAction;
 
     if (enemyAction == "attack") {
-      CoreState.actionResult = "lose";
-      CoreState.player.health -= 1;
+      Core.loseTurn();
     } else if (enemyAction == "defend") {
-      CoreState.actionResult = "win";
-      CoreState.enemy.health -= 1;
+      Core.winTurn();
     } else if (enemyAction == "cast") {
-      CoreState.actionResult = "draw";
+      Core.drawTurn();
     }
 
     Core.checkHealthState();
@@ -130,26 +126,52 @@ const Core = {
     return CoreState;
   },
 
+  winTurn: function () {
+    CoreState.actionResult = "win";
+    CoreState.enemy.health -= 1;
+  },
+
+  loseTurn: function () {
+    CoreState.actionResult = "lose";
+    CoreState.player.health -= 1;
+  },
+
+  drawTurn: function () {
+    CoreState.actionResult = "draw";
+  },
+
   enterReset: function () {
+    CoreState.mode = "reset";
     CoreState.currentRoom = 1;
-    CoreState.player.health = 3;
-    CoreState.player.perception += 1;
+    CoreState.player.health = CoreState.player.maxHealth;
+    CoreState.enemy = {};
     CoreState.playerAction = CoreState.selectedAction;
     CoreState.enemyAction = "none";
     CoreState.selectedAction = "none";
-    CoreState.mode = "reset";
     CoreState.actions = Core.availableActions(CoreState.mode);
 
     return CoreState;
   },
 
   enterBattle: function () {
-    CoreState.currentRoom = 2;
-    CoreState.playerAction = CoreState.selectedAction;
-    CoreState.selectedAction = "none";
     CoreState.mode = "battle";
+    CoreState.player.perception += 1;
+    CoreState.playerAction = CoreState.selectedAction;
+    CoreState.enemyAction = "none";
+    CoreState.selectedAction = "none";
     CoreState.actions = Core.availableActions(CoreState.mode);
     CoreState.enemy = Core.currentEnemy(CoreState);
+
+    return CoreState;
+  },
+
+  enterEnding: function () {
+    CoreState.mode = "ending";
+    CoreState.playerAction = CoreState.selectedAction;
+    CoreState.enemyAction = "none";
+    CoreState.selectedAction = "none";
+    CoreState.actions = Core.availableActions(CoreState.mode);
+    CoreState.enemy = {};
 
     return CoreState;
   },
@@ -166,9 +188,6 @@ const Core = {
     const enemyAction =
       enemyActionPool[Math.floor(Math.random() * enemyActionPool.length)];
 
-    console.log(playerAction);
-    console.log(enemyActionPool);
-    console.log(enemyAction);
     CoreState.enemyAction = enemyAction;
     CoreState.playerAction = playerAction;
     CoreState.selectedAction = "none";
@@ -203,11 +222,11 @@ const Core = {
         enemy: Core.generateEnemy(),
         discovered: false,
       },
-      {
-        mode: "battle",
-        enemy: Core.generateEnemy(),
-        discovered: false,
-      },
+      // {
+      //   mode: "battle",
+      //   enemy: Core.generateEnemy(),
+      //   discovered: false,
+      // },
       {
         mode: "battle",
         enemy: Core.generateBoss(),
@@ -241,40 +260,40 @@ const Core = {
       type: "creep",
       kind: "Goblin",
       weapon: "dagger",
-      health: 2,
-      maxHealth: 2,
+      health: 1,
+      maxHealth: 1,
       actions: ["attack", "defend", "defend", "cast"],
     },
     {
       type: "creep",
       kind: "Kobold",
       weapon: "spear",
-      health: 2,
-      maxHealth: 2,
+      health: 1,
+      maxHealth: 1,
       actions: ["attack", "defend", "defend", "cast"],
     },
     {
       type: "brute",
       kind: "Orc",
       weapon: "axe",
-      health: 4,
-      maxHealth: 4,
+      health: 1,
+      maxHealth: 1,
       actions: ["attack", "attack", "defend", "cast"],
     },
     {
       type: "brute",
       kind: "Ogre",
       weapon: "club",
-      health: 4,
-      maxHealth: 4,
+      health: 1,
+      maxHealth: 1,
       actions: ["attack", "attack", "defend", "cast"],
     },
     {
       type: "arcane",
       kind: "Ghoul",
       weapon: "sickle",
-      health: 3,
-      maxHealth: 3,
+      health: 1,
+      maxHealth: 1,
       actions: ["attack", "defend", "cast", "cast"],
     },
   ],
@@ -284,8 +303,8 @@ const Core = {
       type: "arcane",
       kind: "Lich",
       weapon: "scythe",
-      health: 6,
-      maxHealth: 6,
+      health: 1,
+      maxHealth: 1,
       actions: ["attack", "defend", "defend", "cast", "cast", "cast"],
     },
   ],
@@ -472,12 +491,27 @@ const Core = {
       attract: ["start", "tutorial", "about"],
       reset: ["move", "talk", "inspect"],
       battle: ["attack", "cast", "defend"],
-      victory: ["move"],
+      victory: ["move", "talk", "inspect"],
       defeat: ["reset"],
+      ending: [],
     };
 
     return actions[mode];
   },
+};
+
+Core.actionHandlers = {
+  none: Core.handleNone,
+  attack: Core.handleAttack,
+  defend: Core.handleDefend,
+  cast: Core.handleCast,
+  move: Core.handleMove,
+  talk: Core.handleTalk,
+  inspect: Core.handleInspect,
+  start: Core.handleStart,
+  tutorial: Core.handleTutorial,
+  about: Core.handleAbout,
+  reset: Core.handleReset,
 };
 
 Util = {
