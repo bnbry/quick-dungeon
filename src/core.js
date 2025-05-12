@@ -9,6 +9,9 @@ const Core = {
         health: 3,
         maxHealth: 3,
         perception: 0,
+        melee: "sword",
+        guard: "shield",
+        range: "catalyst",
       },
       enemy: {},
       rooms: Core.generateRooms(),
@@ -259,31 +262,19 @@ const Core = {
     {
       type: "creep",
       kind: "Goblin",
-      weapon: "dagger",
+      melee: "dagger", // thrust, slash, blunt
+      range: "throw", // throw, shoot, cast
+      guard: "dodge", // dodge, block, parry
       health: 1,
       maxHealth: 1,
       actions: ["attack", "defend", "defend", "cast"],
-    },
-    {
-      type: "creep",
-      kind: "Kobold",
-      weapon: "spear",
-      health: 1,
-      maxHealth: 1,
-      actions: ["attack", "defend", "defend", "cast"],
-    },
-    {
-      type: "brute",
-      kind: "Orc",
-      weapon: "axe",
-      health: 1,
-      maxHealth: 1,
-      actions: ["attack", "attack", "defend", "cast"],
     },
     {
       type: "brute",
       kind: "Ogre",
-      weapon: "club",
+      melee: "club",
+      range: "shoot",
+      guard: "block",
       health: 1,
       maxHealth: 1,
       actions: ["attack", "attack", "defend", "cast"],
@@ -291,7 +282,9 @@ const Core = {
     {
       type: "arcane",
       kind: "Ghoul",
-      weapon: "sickle",
+      melee: "sickle",
+      range: "cast",
+      guard: "parry",
       health: 1,
       maxHealth: 1,
       actions: ["attack", "defend", "cast", "cast"],
@@ -302,7 +295,8 @@ const Core = {
     {
       type: "arcane",
       kind: "Lich",
-      weapon: "scythe",
+      melee: "scythe",
+      range: "cast",
       health: 1,
       maxHealth: 1,
       actions: ["attack", "defend", "defend", "cast", "cast", "cast"],

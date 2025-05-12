@@ -23,7 +23,7 @@ const Dungeon = {
           },
           {
             source: "game",
-            message: `You wake in a torchlit cave. Sword, shield and magic catalyst. A strange apparition hovering over you.`,
+            message: `You wake in a torchlit cave. ${gameState.player.melee}, ${gameState.player.guard} and ${gameState.player.range}. A strange apparition hovering over you.`,
           },
           {
             source: "ally",
@@ -49,7 +49,7 @@ const Dungeon = {
           },
           {
             source: "game",
-            message: `They wield ${gameState.enemy.weapon}, shield, and pyromancer's flame.`,
+            message: `They wield ${gameState.enemy.melee}, shield, and pyromancer's flame.`,
           },
           {
             source: "ally",
@@ -110,7 +110,7 @@ const Dungeon = {
           },
           {
             source: "game",
-            message: `They wield ${gameState.enemy.weapon}, shield, and pyromancer's flame.`,
+            message: `They wield ${gameState.enemy.melee}, shield, and pyromancer's flame.`,
           },
           {
             source: "ally",
@@ -151,8 +151,7 @@ const Dungeon = {
       return [
         {
           source: "ally",
-          message:
-            "How about you let your sword do the talking in the next room",
+          message: `How about you let your ${gameState.player.melee} do the talking in the next room`,
         },
       ];
     },
@@ -160,7 +159,7 @@ const Dungeon = {
       return [
         {
           source: "game",
-          message: `You ready your sword to cut down your foe before they can cast a spell.`,
+          message: `You ready your ${gameState.player.melee} to cut down your foe before they can cast a spell.`,
         },
       ];
     },
@@ -218,18 +217,25 @@ const Dungeon = {
     attack: {
       perform: function (gameState) {
         return [
-          { source: "game", message: "You swing your sword ferociously." },
+          {
+            source: "game",
+            message: [
+              `You swing your ${gameState.player.melee} ferociously.`,
+              `You thrust your ${gameState.player.melee} towards the enemy.`,
+              `You raise your ${gameState.player.melee} and slice down violently.`,
+            ],
+          },
         ];
       },
       attack: function (gameState) {
         return [
           {
             source: "game",
-            message: `${gameState.enemy.name} swings their ${gameState.enemy.weapon}.`,
+            message: `${gameState.enemy.name} swings their ${gameState.enemy.melee}.`,
           },
           {
             source: "game",
-            message: `Sword and ${gameState.enemy.weapon} clang against each other.`,
+            message: `${gameState.player.melee} and ${gameState.enemy.melee} clang against each other.`,
           },
           {
             source: "ally",
@@ -245,11 +251,17 @@ const Dungeon = {
           },
           {
             source: "game",
-            message: `Your sword bounces off the enemies shield, leaving you open to a quick swipe of the ${gameState.enemy.weapon}`,
+            message: [
+              `Your ${gameState.player.melee} bounces off the enemies shield, leaving you open to a quick swipe of the ${gameState.enemy.melee}`,
+              `The enemy deflects your ${gameState.player.melee} attack and slashes back with their ${gameState.enemy.melee}.`,
+            ],
           },
           {
             source: "ally",
-            message: `Oof! You know you don't have any potions right?`,
+            message: [
+              `Oof! You know you don't have any potions right?`,
+              `You should cast when they defend themselves, they can't block magic with a shield.`,
+            ],
           },
         ];
       },
@@ -287,11 +299,11 @@ const Dungeon = {
         return [
           {
             source: "game",
-            message: `${gameState.enemy.name} swings their ${gameState.enemy.weapon}.`,
+            message: `${gameState.enemy.name} swings their ${gameState.enemy.melee}.`,
           },
           {
             source: "game",
-            message: `You deflect the ${gameState.enemy.weapon} with your shield and strike back at the stunned foe.`,
+            message: `You deflect the ${gameState.enemy.melee} with your shield and strike back at the stunned foe.`,
           },
           {
             source: "ally",
@@ -350,7 +362,7 @@ const Dungeon = {
         return [
           {
             source: "game",
-            message: `${gameState.enemy.name} swings their ${gameState.enemy.weapon}.`,
+            message: `${gameState.enemy.name} swings their ${gameState.enemy.melee}.`,
           },
           {
             source: "game",
