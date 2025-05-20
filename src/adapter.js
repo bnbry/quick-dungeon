@@ -4,20 +4,20 @@
 
 const actionsMap = {
   // Attract Mode actions
-  start: { value: "start", display: "Start", commit: "Wake up!" },
+  start: { value: "start", display: "Start", commit: "Start" },
   tutorial: { value: "none", display: "Tutorial", commit: "Not yet" },
   about: { value: "none", display: "About", commit: "Not yet" },
 
   // Battle Mode Actions
-  attack: { value: "attack", display: "Attack", commit: "Swing sword" },
-  cast: { value: "cast", display: "Cast", commit: "Cast firebolt" },
-  defend: { value: "defend", display: "Defend", commit: "Raise shield" },
+  attack: { value: "attack", display: "Attack", commit: "Attack" },
+  cast: { value: "cast", display: "Cast", commit: "Cast" },
+  defend: { value: "defend", display: "Defend", commit: "Defend" },
 
   // Victory Mode Actions
   move: {
     value: "move",
-    display: "Proceed",
-    commit: "Continue the adventure...",
+    display: "Move",
+    commit: "Move",
   },
   inspect: { value: "none", display: "Inspect", commit: "Not yet" },
   talk: { value: "none", display: "Talk", commit: "Not yet" },

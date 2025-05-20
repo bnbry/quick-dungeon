@@ -23,6 +23,7 @@
   --light-color: #808080;
   --white-color: #CCCCCC;
   --ally-color: #a3a3ff;
+  --status-color: #AAAAAA;
 }
 
 * {
@@ -117,12 +118,20 @@ footer {
   content: "> "
 }
 
+.output-stream .status-message:before {
+  content: "# "
+}
+
 .output-stream li:first-child {
   color: var(--white-color);
 }
 
 .output-stream li:first-child .ally-message {
   color: var(--ally-color);
+}
+
+.output-stream li:first-child .status-message {
+  color: var(--status-color);
 }
 
 .button-row {

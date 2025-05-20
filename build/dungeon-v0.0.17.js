@@ -10,6 +10,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitAttack(gameState),
         ...Dungeon.gameActionMessages.enemyAttack(gameState),
         ...Dungeon.turnResultMessages.attackDraw(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -19,6 +20,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitAttack(gameState),
         ...Dungeon.gameActionMessages.enemyDefend(gameState),
         ...Dungeon.turnResultMessages.attackFail(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -28,6 +30,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitAttack(gameState),
         ...Dungeon.gameActionMessages.enemyCast(gameState),
         ...Dungeon.turnResultMessages.attackSuccess(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -37,6 +40,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitCast(gameState),
         ...Dungeon.gameActionMessages.enemyCast(gameState),
         ...Dungeon.turnResultMessages.castDraw(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -46,6 +50,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitCast(gameState),
         ...Dungeon.gameActionMessages.enemyAttack(gameState),
         ...Dungeon.turnResultMessages.castFail(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -55,6 +60,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitCast(gameState),
         ...Dungeon.gameActionMessages.enemyDefend(gameState),
         ...Dungeon.turnResultMessages.castSuccess(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -64,6 +70,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitDefend(gameState),
         ...Dungeon.gameActionMessages.enemyDefend(gameState),
         ...Dungeon.turnResultMessages.defendDraw(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -73,6 +80,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitDefend(gameState),
         ...Dungeon.gameActionMessages.enemyCast(gameState),
         ...Dungeon.turnResultMessages.defendFail(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -82,6 +90,7 @@ const Dungeon = {
         ...Dungeon.playerActionMessages.commitDefend(gameState),
         ...Dungeon.gameActionMessages.enemyAttack(gameState),
         ...Dungeon.turnResultMessages.defendSuccess(gameState),
+        ...Dungeon.turnResultMessages.battleStatus(gameState),
         ...Dungeon.gameModeMessages[gameState.mode](gameState),
       ];
     },
@@ -228,6 +237,17 @@ const Dungeon = {
   },
 
   turnResultMessages: {
+    battleStatus: function (gameState) {
+      return [
+        {
+          source: "status",
+          message: [
+            `Player HP ${gameState.player.health}/${gameState.player.maxHealth} | Enemy HP ${gameState.enemy.health}/${gameState.enemy.maxHealth}`,
+          ],
+        },
+      ];
+    },
+
     attackDraw: function (gameState) {
       return [{ source: "game", message: [`You draw.`] }];
     },
