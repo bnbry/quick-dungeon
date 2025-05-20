@@ -30,6 +30,7 @@ let GameState = {
   messages: [],
   selectedAction: {},
   actions: [],
+  enemies: {},
 };
 
 const Adapter = {
@@ -41,6 +42,7 @@ const Adapter = {
       ...coreState,
       selectedAction: actionsMap[coreState.selectedAction],
       actions: coreState.actions.map((action) => actionsMap[action]),
+      enemy: Adapter.resolveEnemy(coreState.enemy),
       messages: [],
     };
 
@@ -56,6 +58,35 @@ const Adapter = {
       ...gameState,
       messages,
     };
+  },
+
+  resolveEnemy: function (currentEnemy) {
+    if (currentEnemy.id === undefined) {
+      return {};
+    }
+
+    console.log(currentEnemy);
+
+    const storedEnemy = GameState.enemies[currentEnemy.id];
+    let resolvedEnemy = {};
+
+    if (storedEnemy) {
+      resolvedEnemy = {
+        ...storedEnemy,
+        ...currentEnemy,
+      };
+    } else {
+      resolvedEnemy = {
+        ...currentEnemy,
+        name: Util.selectRandom(Core.names),
+        kind: "goblin",
+        melee: "dagger",
+      };
+    }
+
+    GameState.enemies[currentEnemy.id] = resolvedEnemy;
+
+    return resolvedEnemy;
   },
 
   commitAction: function (actionValue) {

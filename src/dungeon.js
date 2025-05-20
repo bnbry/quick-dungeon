@@ -23,7 +23,7 @@ const Dungeon = {
           },
           {
             source: "game",
-            message: `You wake in a torchlit cave. ${gameState.player.melee}, ${gameState.player.guard} and ${gameState.player.range}. A strange apparition hovering over you.`,
+            message: `You wake in a torchlit cave. ${gameState.player.melee}, ${gameState.player.defend} and ${gameState.player.cast}. A strange apparition hovering over you.`,
           },
           {
             source: "ally",

@@ -10,8 +10,8 @@ const Core = {
         maxHealth: 3,
         perception: 0,
         melee: "sword",
-        guard: "shield",
-        range: "catalyst",
+        defend: "shield",
+        cast: "catalyst",
       },
       enemy: {},
       rooms: Core.generateRooms(),
@@ -222,17 +222,17 @@ const Core = {
       },
       {
         mode: "battle",
-        enemy: Core.generateEnemy(),
+        enemy: Core.generateEnemy(2),
         discovered: false,
       },
-      // {
-      //   mode: "battle",
-      //   enemy: Core.generateEnemy(),
-      //   discovered: false,
-      // },
       {
         mode: "battle",
-        enemy: Core.generateBoss(),
+        enemy: Core.generateEnemy(3),
+        discovered: false,
+      },
+      {
+        mode: "battle",
+        enemy: Core.generateEnemy(4),
         discovered: false,
       },
     ];
@@ -248,46 +248,44 @@ const Core = {
     return enemy;
   },
 
-  generateEnemy: function () {
+  generateEnemy: function (roomLevel) {
     const enemyBase = Util.selectRandom(Core.enemies);
     const enemy = {
       ...enemyBase,
-      name: Util.selectRandom(Core.names),
+      id: crypto.randomUUID(),
+      actions: Core.generateEnemyActions(enemyBase.type),
+      level: roomLevel,
+      health: enemyBase.healthMultiplier * roomLevel,
+      maxHealth: enemyBase.healthMultiplier * roomLevel,
     };
 
     return enemy;
   },
 
+  generateEnemyActions: function (type) {
+    const actions = {
+      defender: ["attack", "defend", "defend", "cast"],
+      attacker: ["attack", "attack", "defend", "cast"],
+      caster: ["attack", "defend", "cast", "cast"],
+    };
+
+    const randomAction = Util.selectRandom(actions[type]);
+
+    return [...actions[type], randomAction];
+  },
+
   enemies: [
     {
-      type: "creep",
-      kind: "Goblin",
-      melee: "dagger", // thrust, slash, blunt
-      range: "throw", // throw, shoot, cast
-      guard: "dodge", // dodge, block, parry
-      health: 1,
-      maxHealth: 1,
-      actions: ["attack", "defend", "defend", "cast"],
+      type: "defender",
+      healthMultiplier: 1,
     },
     {
-      type: "brute",
-      kind: "Ogre",
-      melee: "club",
-      range: "shoot",
-      guard: "block",
-      health: 1,
-      maxHealth: 1,
-      actions: ["attack", "attack", "defend", "cast"],
+      type: "attacker",
+      healthMultiplier: 1,
     },
     {
-      type: "arcane",
-      kind: "Ghoul",
-      melee: "sickle",
-      range: "cast",
-      guard: "parry",
-      health: 1,
-      maxHealth: 1,
-      actions: ["attack", "defend", "cast", "cast"],
+      type: "caster",
+      healthMultiplier: 1,
     },
   ],
 
@@ -296,7 +294,7 @@ const Core = {
       type: "arcane",
       kind: "Lich",
       melee: "scythe",
-      range: "cast",
+      cast: "cast",
       health: 1,
       maxHealth: 1,
       actions: ["attack", "defend", "defend", "cast", "cast", "cast"],
@@ -318,75 +316,26 @@ const Core = {
     "Hezra",
     "Feron",
     "Ophni",
-    "Colborn",
-    "Fintis",
     "Gatlin",
-    "Hagalbar",
     "Krinn",
-    "Lenox",
     "Revvyn",
     "Hodus",
-    "Dimian",
-    "Paskel",
     "Kontas",
     "Azamarr",
     "Jather",
     "Tekren",
-    "Jareth",
-    "Adon",
-    "Zaden",
-    "Eune",
-    "Graff",
     "Matti",
-    "Tez",
-    "Jessop",
-    "Gunnar",
-    "Pike",
-    "Domnhar",
     "Baske",
-    "Jerrick",
-    "Tyvrik",
-    "Henndar",
-    "Jaris",
-    "Renham",
     "Kagran",
-    "Lassrin",
     "Gargul",
     "Vadim",
-    "Yorjan",
-    "Khron",
-    "Jakrin",
     "Fangar",
-    "Roux",
     "Krisni",
     "Baxar",
-    "Hawke",
-    "Gatlen",
-    "Barak",
-    "Kadric",
-    "Paquin",
-    "Moki",
     "Rankar",
-    "Lothe",
-    "Ryven",
-    "Pakker",
-    "Embre",
     "Verssek",
-    "Dagfinn",
-    "Nesso",
-    "Eldermar",
     "Rivik",
-    "Rourke",
-    "Hemm",
-    "Sarkin",
-    "Blaiz",
-    "Agro",
     "Zagaroth",
-    "Turrek",
-    "Esdel",
-    "Lustros",
-    "Zenner",
-    "Baashar",
     "Dagrod",
     "Gentar",
     "Feston",
@@ -487,7 +436,7 @@ const Core = {
       battle: ["attack", "cast", "defend"],
       victory: ["move", "talk", "inspect"],
       defeat: ["reset"],
-      ending: [],
+      ending: ["move", "talk", "inspect"],
     };
 
     return actions[mode];
