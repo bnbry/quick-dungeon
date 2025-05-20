@@ -6,21 +6,22 @@ const actionsMap = {
   // Attract Mode actions
   start: { value: "start", display: "Start", commit: "Wake up!" },
   tutorial: { value: "none", display: "Tutorial", commit: "Not yet" },
-  about: { value: "none", display: "About", commit: "We don't have this" },
+  about: { value: "none", display: "About", commit: "Not yet" },
+
   // Battle Mode Actions
   attack: { value: "attack", display: "Attack", commit: "Swing sword" },
   cast: { value: "cast", display: "Cast", commit: "Cast firebolt" },
   defend: { value: "defend", display: "Defend", commit: "Raise shield" },
-  // Victory and Reset Mode Actions
+
+  // Victory Mode Actions
   move: {
     value: "move",
-    display: "Embark",
-    commit: "Enter the dungeon...",
+    display: "Proceed",
+    commit: "Continue the adventure...",
   },
   inspect: { value: "none", display: "Inspect", commit: "Not yet" },
   talk: { value: "none", display: "Talk", commit: "Not yet" },
-  // Defeat mode after failing a fight
-  reset: { value: "reset", display: "Wake", commit: "Wake up!" },
+
   // Utility actions
   none: { value: "none", display: "None", commit: "Select Action..." },
 };
@@ -52,7 +53,7 @@ const Adapter = {
   init: function () {
     const coreState = Core.init();
     const gameState = Adapter.presentCoreState(coreState);
-    const messages = Adapter.modeTransitionMessages(gameState, "attract");
+    const messages = Adapter.eventMessages(gameState);
 
     return {
       ...gameState,
@@ -93,10 +94,7 @@ const Adapter = {
     const previousMode = GameState.mode;
     const coreState = Core.handleAction(actionValue);
     const gameState = Adapter.presentCoreState(coreState);
-    const messages = [
-      ...Adapter.actionCommitMessages(gameState),
-      ...Adapter.modeTransitionMessages(gameState, previousMode),
-    ];
+    const messages = Adapter.eventMessages(gameState);
 
     return {
       ...gameState,
@@ -107,7 +105,7 @@ const Adapter = {
   selectAction: function (actionValue) {
     const coreState = Core.selectAction(actionValue);
     const gameState = Adapter.presentCoreState(coreState);
-    const messages = Adapter.actionSelectMessages(gameState);
+    const messages = Adapter.eventMessages(gameState);
 
     return {
       ...gameState,
@@ -115,30 +113,9 @@ const Adapter = {
     };
   },
 
-  modeTransitionMessages: function (gameState, previousMode) {
-    const messages =
-      Dungeon.transition[`${previousMode}`][`${gameState.mode}`](gameState);
-
-    return messages;
-  },
-
-  actionSelectMessages: function (gameState) {
-    const messages = [
-      ...Dungeon.select[`${gameState.selectedAction.value}`](gameState),
-    ];
-
-    return messages;
-  },
-
-  actionCommitMessages: function (gameState) {
-    const playerAction = gameState.playerAction;
-    const enemyAction = gameState.enemyAction;
-
-    const messages = [
-      ...Dungeon.commit[`${playerAction}`].perform(gameState),
-      ...Dungeon.commit[`${playerAction}`][`${enemyAction}`](gameState),
-    ];
-
-    return messages;
+  eventMessages: function (gameState) {
+    console.log(gameState);
+    console.log(Dungeon.eventMessages[gameState.currentEvent]);
+    return Dungeon.eventMessages[gameState.currentEvent](gameState);
   },
 };

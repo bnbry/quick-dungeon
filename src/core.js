@@ -15,6 +15,7 @@ const Core = {
       },
       enemy: {},
       rooms: Core.generateRooms(),
+      currentEvent: "attractLoad",
       currentRoom: 0,
       mode: "attract",
       actions: Core.availableActions("attract"),
@@ -29,6 +30,7 @@ const Core = {
 
   selectAction: function (playerAction) {
     CoreState.selectedAction = playerAction;
+    CoreState.currentEvent = `${playerAction}Select`;
 
     return CoreState;
   },
@@ -42,19 +44,11 @@ const Core = {
   },
 
   handleStart: function () {
-    return Core.enterReset();
-  },
+    CoreState.currentRoom += 1;
+    CoreState.player.health = CoreState.player.maxHealth;
+    CoreState.currentEvent = "startSuccess";
 
-  handleTutorial: function () {
-    return CoreState;
-  },
-
-  handleAbout: function () {
-    return CoreState;
-  },
-
-  handleReset: function () {
-    return Core.enterReset();
+    return Core.enterBattle();
   },
 
   handleMove: function () {
@@ -64,15 +58,9 @@ const Core = {
       return Core.enterEnding();
     }
 
+    CoreState.currentEvent = "moveSuccess";
+
     return Core.enterBattle();
-  },
-
-  handleTalk: function () {
-    return CoreState;
-  },
-
-  handleInspect: function () {
-    return CoreState;
   },
 
   handleAttack: function () {
@@ -80,11 +68,11 @@ const Core = {
     const enemyAction = CoreState.enemyAction;
 
     if (enemyAction == "attack") {
-      Core.drawTurn();
+      Core.drawTurn("attackDraw");
     } else if (enemyAction == "defend") {
-      Core.loseTurn();
+      Core.loseTurn("attackFail");
     } else if (enemyAction == "cast") {
-      Core.winTurn();
+      Core.winTurn("attackSuccess");
     }
 
     Core.checkHealthState();
@@ -98,11 +86,11 @@ const Core = {
     const enemyAction = CoreState.enemyAction;
 
     if (enemyAction == "attack") {
-      Core.winTurn();
+      Core.winTurn("defendSuccess");
     } else if (enemyAction == "defend") {
-      Core.drawTurn();
+      Core.drawTurn("defendDraw");
     } else if (enemyAction == "cast") {
-      Core.loseTurn();
+      Core.loseTurn("defendFail");
     }
 
     Core.checkHealthState();
@@ -116,11 +104,11 @@ const Core = {
     const enemyAction = CoreState.enemyAction;
 
     if (enemyAction == "attack") {
-      Core.loseTurn();
+      Core.loseTurn("castFail");
     } else if (enemyAction == "defend") {
-      Core.winTurn();
+      Core.winTurn("castSuccess");
     } else if (enemyAction == "cast") {
-      Core.drawTurn();
+      Core.drawTurn("castDraw");
     }
 
     Core.checkHealthState();
@@ -129,31 +117,18 @@ const Core = {
     return CoreState;
   },
 
-  winTurn: function () {
-    CoreState.actionResult = "win";
+  winTurn: function (event) {
     CoreState.enemy.health -= 1;
+    CoreState.currentEvent = event;
   },
 
-  loseTurn: function () {
-    CoreState.actionResult = "lose";
+  loseTurn: function (event) {
     CoreState.player.health -= 1;
+    CoreState.currentEvent = event;
   },
 
-  drawTurn: function () {
-    CoreState.actionResult = "draw";
-  },
-
-  enterReset: function () {
-    CoreState.mode = "reset";
-    CoreState.currentRoom = 1;
-    CoreState.player.health = CoreState.player.maxHealth;
-    CoreState.enemy = {};
-    CoreState.playerAction = CoreState.selectedAction;
-    CoreState.enemyAction = "none";
-    CoreState.selectedAction = "none";
-    CoreState.actions = Core.availableActions(CoreState.mode);
-
-    return CoreState;
+  drawTurn: function (event) {
+    CoreState.currentEvent = event;
   },
 
   enterBattle: function () {
@@ -216,11 +191,6 @@ const Core = {
         discovered: true,
       },
       {
-        mode: "reset",
-        enemy: {},
-        discovered: true,
-      },
-      {
         mode: "battle",
         enemy: Core.generateEnemy(2),
         discovered: false,
@@ -257,6 +227,11 @@ const Core = {
       level: roomLevel,
       health: enemyBase.healthMultiplier * roomLevel,
       maxHealth: enemyBase.healthMultiplier * roomLevel,
+      tells: {
+        attack: crypto.randomUUID(),
+        defend: crypto.randomUUID(),
+        cast: crypto.randomUUID(),
+      },
     };
 
     return enemy;
@@ -435,7 +410,7 @@ const Core = {
       reset: ["move", "talk", "inspect"],
       battle: ["attack", "cast", "defend"],
       victory: ["move", "talk", "inspect"],
-      defeat: ["reset"],
+      defeat: ["start"],
       ending: ["move", "talk", "inspect"],
     };
 
@@ -444,25 +419,13 @@ const Core = {
 };
 
 Core.actionHandlers = {
-  none: Core.handleNone,
   attack: Core.handleAttack,
   defend: Core.handleDefend,
   cast: Core.handleCast,
+
   move: Core.handleMove,
-  talk: Core.handleTalk,
-  inspect: Core.handleInspect,
+
   start: Core.handleStart,
-  tutorial: Core.handleTutorial,
-  about: Core.handleAbout,
-  reset: Core.handleReset,
-};
 
-Util = {
-  selectRandom: function (collection) {
-    if (collection.length == 0) {
-      return undefined;
-    }
-
-    return collection[Math.floor(Math.random() * collection.length)];
-  },
+  none: Core.handleNone,
 };
