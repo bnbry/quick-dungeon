@@ -36,8 +36,6 @@ let GameState = {
 
 const Adapter = {
   presentCoreState: function (coreState) {
-    console.log(coreState);
-
     GameState = {
       ...GameState,
       ...coreState,
@@ -65,8 +63,6 @@ const Adapter = {
     if (currentEnemy.id === undefined) {
       return {};
     }
-
-    console.log(currentEnemy);
 
     const storedEnemy = GameState.enemies[currentEnemy.id];
     let resolvedEnemy = {};
@@ -114,8 +110,6 @@ const Adapter = {
   },
 
   eventMessages: function (gameState) {
-    console.log(gameState);
-    console.log(Dungeon.eventMessages[gameState.currentEvent]);
     return Dungeon.eventMessages[gameState.currentEvent](gameState);
   },
 };
