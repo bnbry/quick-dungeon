@@ -22,6 +22,12 @@ const actionsMap = {
   inspect: { value: "none", display: "Inspect", commit: "Not yet" },
   talk: { value: "none", display: "Talk", commit: "Not yet" },
 
+  retry: {
+    value: "retry",
+    display: "Revive",
+    commit: "Revive and try again...",
+  },
+
   // Utility actions
   none: { value: "none", display: "None", commit: "Select Action..." },
 };
@@ -76,7 +82,6 @@ const Adapter = {
     } else {
       resolvedEnemy = {
         ...currentEnemy,
-        name: Util.selectRandom(Core.names),
         kind: "goblin",
         melee: "dagger",
       };

@@ -51,6 +51,16 @@ const Core = {
     return Core.enterBattle();
   },
 
+  handleRetry: function () {
+    CoreState.currentRoom = 1;
+    CoreState.player.maxHealth += 1;
+    CoreState.player.perception += 1;
+    CoreState.player.health = CoreState.player.maxHealth;
+    CoreState.currentEvent = "retrySuccess";
+
+    return Core.enterBattle();
+  },
+
   handleMove: function () {
     CoreState.currentRoom += 1;
 
@@ -134,12 +144,11 @@ const Core = {
 
   enterBattle: function () {
     CoreState.mode = "battle";
-    CoreState.player.perception += 1;
     CoreState.playerAction = CoreState.selectedAction;
     CoreState.enemyAction = "none";
     CoreState.selectedAction = "none";
     CoreState.actions = Core.availableActions(CoreState.mode);
-    CoreState.enemy = Core.currentEnemy(CoreState);
+    CoreState.enemy = { ...Core.currentEnemy(CoreState) };
 
     return CoreState;
   },
@@ -218,7 +227,6 @@ const Core = {
     const enemyBase = Util.selectRandom(Core.bosses);
     const enemy = {
       ...enemyBase,
-      name: Util.selectRandom(Core.names),
     };
 
     return enemy;
@@ -258,15 +266,15 @@ const Core = {
   enemies: [
     {
       type: "defender",
-      healthMultiplier: 1,
+      healthMultiplier: 2,
     },
     {
       type: "attacker",
-      healthMultiplier: 1,
+      healthMultiplier: 2,
     },
     {
       type: "caster",
-      healthMultiplier: 1,
+      healthMultiplier: 2,
     },
   ],
 
@@ -281,141 +289,13 @@ const Core = {
       actions: ["attack", "defend", "defend", "cast", "cast", "cast"],
     },
   ],
-  /**
-   * Enemy Names
-   *
-   * This data is used to select a "unique" name for each enemy. The list is mostly taken from:
-   * https://medium.com/@barelyharebooks/a-master-list-of-300-fantasy-names-characters-towns-and-villages-47c113f6a90b
-   */
-  names: [
-    "Lydan",
-    "Syrin",
-    "Ptorik",
-    "Joz",
-    "Varog",
-    "Gethrod",
-    "Hezra",
-    "Feron",
-    "Ophni",
-    "Gatlin",
-    "Krinn",
-    "Revvyn",
-    "Hodus",
-    "Kontas",
-    "Azamarr",
-    "Jather",
-    "Tekren",
-    "Matti",
-    "Baske",
-    "Kagran",
-    "Gargul",
-    "Vadim",
-    "Fangar",
-    "Krisni",
-    "Baxar",
-    "Rankar",
-    "Verssek",
-    "Rivik",
-    "Zagaroth",
-    "Dagrod",
-    "Gentar",
-    "Feston",
-    "Syrana",
-    "Resha",
-    "Varin",
-    "Yuni",
-    "Talis",
-    "Kessa",
-    "Magaltie",
-    "Desmina",
-    "Krynna",
-    "Asralyn",
-    "Herra",
-    "Pret",
-    "Tessel",
-    "Zara",
-    "Belen",
-    "Rei",
-    "Ciscra",
-    "Temy",
-    "Estyn",
-    "Maarika",
-    "Lynorr",
-    "Tiv",
-    "Annihya",
-    "Semet",
-    "Tamrin",
-    "Antia",
-    "Reslyn",
-    "Basak",
-    "Vixra",
-    "Pekka",
-    "Xavia",
-    "Beatha",
-    "Yarri",
-    "Liris",
-    "Sonali",
-    "Razra",
-    "Soko",
-    "Maeve",
-    "Everen",
-    "Yelina",
-    "Morwena",
-    "Hagar",
-    "Palra",
-    "Elysa",
-    "Ketra",
-    "Agama",
-    "Thesra",
-    "Tezani",
-    "Ralia",
-    "Naima",
-    "Rydna",
-    "Baakshi",
-    "Ibera",
-    "Phlox",
-    "Braithe",
-    "Taewen",
-    "Silene",
-    "Phressa",
-    "Anika",
-    "Rasy",
-    "Vita",
-    "Drusila",
-    "Minha",
-    "Surane",
-    "Lassona",
-    "Merula",
-    "Lyla",
-    "Zet",
-    "Orett",
-    "Naphtalia",
-    "Turi",
-    "Rhays",
-    "Shike",
-    "Hartie",
-    "Beela",
-    "Leska",
-    "Vemery",
-    "Lunex",
-    "Fidess",
-    "Tisette",
-    "Partha",
-    "Aleksi",
-    "Erol",
-    "Lorre",
-    "Renn",
-    "Dylane",
-    "Cormyl",
-    "Laurille",
-  ],
 
   availableActions: function (mode) {
     const actions = {
       attract: ["start", "none", "none"],
       battle: ["attack", "cast", "defend"],
       victory: ["move", "none", "none"],
-      defeat: ["start"],
+      defeat: ["retry", "none", "none"],
       ending: ["none", "none", "none"],
     };
 
@@ -427,10 +307,8 @@ Core.actionHandlers = {
   attack: Core.handleAttack,
   defend: Core.handleDefend,
   cast: Core.handleCast,
-
   move: Core.handleMove,
-
   start: Core.handleStart,
-
+  retry: Core.handleRetry,
   none: Core.handleNone,
 };

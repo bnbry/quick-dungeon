@@ -104,6 +104,15 @@ const Dungeon = {
       ];
     },
 
+    retrySuccess: function (gameState) {
+      return [
+        ...Dungeon.playerActionMessages.commitRetry(gameState),
+        ...Dungeon.turnResultMessages.moveSuccess(gameState),
+        ...Dungeon.gameActionMessages.enemyReveal(gameState),
+        ...Dungeon.gameModeMessages[gameState.mode](gameState),
+      ];
+    },
+
     startSuccess: function (gameState) {
       return [
         ...Dungeon.playerActionMessages.commitStart(gameState),
@@ -135,6 +144,10 @@ const Dungeon = {
 
     moveSelect: function (gameState) {
       return [...Dungeon.playerActionMessages.selectMove(gameState)];
+    },
+
+    retrySelect: function (gameState) {
+      return [...Dungeon.playerActionMessages.selectRetry(gameState)];
     },
   },
 
@@ -280,6 +293,31 @@ const Dungeon = {
       ];
     },
 
+    commitRetry: function (gameState) {
+      return [
+        {
+          source: "game",
+          message: [
+            `You awaken from your slumber, ready to face the challenge once more.`,
+            `You rise from the dead, your body healed and your spirit renewed.`,
+            `The weight of your equipment feels lighter as you stand once more.`,
+            `Your eyes gleam with determination as you prepare to face your foe.`,
+            `The air grows still as you prepare to face your enemy once more.`,
+            `The sound of your movement fills the chamber as you stand once more.`,
+            `The torchlight flickers as you stand once more.`,
+            `The sound of dripping water echoes as you stand once more.`,
+            `The air grows colder as you stand once more.`,
+          ],
+        },
+        {
+          source: "ally",
+          message: [
+            `Hey, hey! You're alive again. You're healed and your level has increased. You've gained health and perception.`,
+          ],
+        },
+      ];
+    },
+
     commitStart: function (gameState) {
       return [
         {
@@ -400,6 +438,15 @@ const Dungeon = {
       ];
     },
 
+    selectRetry: function (gameState) {
+      return [
+        {
+          source: "game",
+          message: [`Death is not the end. Revive and try again.`],
+        },
+      ];
+    },
+
     selectStart: function (gameState) {
       return [
         {
@@ -440,7 +487,7 @@ const Dungeon = {
     },
 
     defeat: function (gameState) {
-      return [{ source: "game", message: "You were defeated." }];
+      return [{ source: "game", message: "You died" }];
     },
 
     ending: function (gameState) {

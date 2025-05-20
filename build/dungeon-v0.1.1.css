@@ -192,50 +192,69 @@ footer {
   margin: 10px 0;
 }
 
-body.pulse-green-effect .terminal {
-  animation: pulse-green 250ms;
+body.pulse-green-effect {
+  animation: pulse-green-bg 275ms ease-in-out;
 }
 
-body.pulse-red-effect .terminal {
-  animation: pulse-red 250ms;
+body.pulse-red-effect {
+  animation: pulse-red-bg 250ms ease-in-out;
 }
 
-@keyframes pulse-green {
+body.pulse-green-effect .terminal,
+body.pulse-green-effect .button-row .button {
+  animation: pulse-green-border 275ms ease-in-out;
+}
+
+body.pulse-red-effect .terminal,
+body.pulse-red-effect .button-row .button {
+  animation: pulse-red-border 250ms;
+}
+
+@keyframes pulse-green-bg {
+  90% {
+    background-color: #161a16;
+  }
+  100% {
+    background-color: #16161A;
+  }
+}
+
+@keyframes pulse-green-border {
+  90% {
+    border-color: #309a3e;
+  }
+  100% {
+    border-color: #332E4D;
+  }
+}
+
+@keyframes pulse-red-bg {
+  90% {
+    background-color: #1a1616;
+  }
+  100% {
+    background-color: #16161A;
+  }
+}
+
+@keyframes pulse-red-border {
   10%, 90% {
-    border-color: rgb(44, 136, 14);
+    transform: translate3d(-3px, 2px, 0);
+    border-color: #9f1717;
   }
 
   20%, 80% {
-    border-color: rgb(42, 185, 2);
+    transform: translate3d(4px, -4px, 0);
+    border-color: #b90202;
   }
 
   30%, 50%, 70% {
-    border-color: rgb(26, 129, 0);
+    transform: translate3d(-5px, 3px, 0);
+    border-color: #810000;
   }
 
   40%, 60% {
-    border-color: rgb(2, 185, 14);
-  }
-}
-
-@keyframes pulse-red {
-  10%, 90% {
-    transform: translate3d(-2px, 1px, 0);
-    border-color: rgb(136, 14, 14);
-  }
-
-  20%, 80% {
     transform: translate3d(3px, -4px, 0);
-    border-color: rgb(185, 2, 2);
-  }
-
-  30%, 50%, 70% {
-    transform: translate3d(-4px, 2px, 0);
-    border-color: rgb(129, 0, 0);
-  }
-
-  40%, 60% {
-    transform: translate3d(4px, -2px, 0);
-    border-color: rgb(185, 2, 2);
+    border-color: #5f0505;
   }
 }
