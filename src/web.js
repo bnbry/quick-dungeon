@@ -15,7 +15,16 @@ const Web = {
     Web.updateCommitButton(currentState.selectedAction);
     Web.streamMessages(currentState.messages);
     Web.renderActions(currentState.actions);
+    Web.updateBodyEffect(currentState.eventEffect);
     Web.initListeners();
+  },
+
+  updateBodyEffect: function (eventEffect) {
+    UI.targets.queryBody().classList.add(eventEffect);
+
+    setTimeout(function () {
+      UI.targets.queryBody().classList.remove(eventEffect);
+    }, 300);
   },
 
   onActionSelect: function (event) {
@@ -140,6 +149,9 @@ UI.targets = {
   },
   queryOutputStream: function () {
     return document.querySelector("[data-target='output-stream']");
+  },
+  queryBody: function () {
+    return document.querySelector("body");
   },
 };
 

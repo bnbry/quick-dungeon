@@ -5,6 +5,7 @@
   --light-color: #554D80;
   --white-color: #B3ADCC;
   --ally-color: #d99afb;
+  --status-color: #a4a485;
 }
 
 .theme-green {
@@ -189,4 +190,52 @@ label {
 
 footer {
   margin: 10px 0;
+}
+
+body.pulse-green-effect .terminal {
+  animation: pulse-green 250ms;
+}
+
+body.pulse-red-effect .terminal {
+  animation: pulse-red 250ms;
+}
+
+@keyframes pulse-green {
+  10%, 90% {
+    border-color: rgb(44, 136, 14);
+  }
+
+  20%, 80% {
+    border-color: rgb(42, 185, 2);
+  }
+
+  30%, 50%, 70% {
+    border-color: rgb(26, 129, 0);
+  }
+
+  40%, 60% {
+    border-color: rgb(2, 185, 14);
+  }
+}
+
+@keyframes pulse-red {
+  10%, 90% {
+    transform: translate3d(-2px, 1px, 0);
+    border-color: rgb(136, 14, 14);
+  }
+
+  20%, 80% {
+    transform: translate3d(3px, -4px, 0);
+    border-color: rgb(185, 2, 2);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 2px, 0);
+    border-color: rgb(129, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, -2px, 0);
+    border-color: rgb(185, 2, 2);
+  }
 }

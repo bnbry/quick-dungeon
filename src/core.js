@@ -54,7 +54,8 @@ const Core = {
   handleMove: function () {
     CoreState.currentRoom += 1;
 
-    if (CoreState.currentRoom >= CoreState.rooms.length) {
+    if (CoreState.currentRoom >= CoreState.rooms.length - 1) {
+      CoreState.currentEvent = "gameEnding";
       return Core.enterEnding();
     }
 
@@ -195,14 +196,19 @@ const Core = {
         enemy: Core.generateEnemy(2),
         discovered: false,
       },
+      // {
+      //   mode: "battle",
+      //   enemy: Core.generateEnemy(3),
+      //   discovered: false,
+      // },
+      // {
+      //   mode: "battle",
+      //   enemy: Core.generateEnemy(4),
+      //   discovered: false,
+      // },
       {
-        mode: "battle",
-        enemy: Core.generateEnemy(3),
-        discovered: false,
-      },
-      {
-        mode: "battle",
-        enemy: Core.generateEnemy(4),
+        mode: "ending",
+        enemy: {},
         discovered: false,
       },
     ];
@@ -406,12 +412,11 @@ const Core = {
 
   availableActions: function (mode) {
     const actions = {
-      attract: ["start", "tutorial", "about"],
-      reset: ["move", "talk", "inspect"],
+      attract: ["start", "none", "none"],
       battle: ["attack", "cast", "defend"],
-      victory: ["move", "talk", "inspect"],
+      victory: ["move", "none", "none"],
       defeat: ["start"],
-      ending: ["move", "talk", "inspect"],
+      ending: ["none", "none", "none"],
     };
 
     return actions[mode];

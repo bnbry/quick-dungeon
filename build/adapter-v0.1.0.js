@@ -32,6 +32,7 @@ let GameState = {
   selectedAction: {},
   actions: [],
   enemies: {},
+  eventEffect: "no-effect",
 };
 
 const Adapter = {
@@ -87,14 +88,15 @@ const Adapter = {
   },
 
   commitAction: function (actionValue) {
-    const previousMode = GameState.mode;
     const coreState = Core.handleAction(actionValue);
     const gameState = Adapter.presentCoreState(coreState);
     const messages = Adapter.eventMessages(gameState);
+    const eventEffect = Adapter.eventEffects(gameState);
 
     return {
       ...gameState,
       messages,
+      eventEffect,
     };
   },
 
@@ -102,14 +104,31 @@ const Adapter = {
     const coreState = Core.selectAction(actionValue);
     const gameState = Adapter.presentCoreState(coreState);
     const messages = Adapter.eventMessages(gameState);
+    const eventEffect = Adapter.eventEffects(gameState);
 
     return {
       ...gameState,
       messages,
+      eventEffect,
     };
   },
 
   eventMessages: function (gameState) {
     return Dungeon.eventMessages[gameState.currentEvent](gameState);
+  },
+
+  eventEffects: function (gameState) {
+    switch (gameState.currentEvent) {
+      case "attackFail":
+      case "castFail":
+      case "defendFail":
+        return "pulse-red-effect";
+      case "attackSuccess":
+      case "castSuccess":
+      case "defendSuccess":
+        return "pulse-green-effect";
+      default:
+        return "no-effect";
+    }
   },
 };
